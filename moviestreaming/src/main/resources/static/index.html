@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liqi Phim - Trang chủ</title>
+  <style>
+    :root {
+      --bg: #0b1017;
+      --text: #f5f6fa;
+      --muted: #b1b9c7;
+      --accent: #ffd363;
+      --accent2: #ff4561;
+      --card: rgba(20, 30, 45, 0.85);
+      --border: rgba(255,255,255,0.13);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: radial-gradient(circle at top left, #1d2b42 0%, #0b1017 60%); color: var(--text); min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .navbar { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; }
+    .nav-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .nav-bottom { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); }
+    .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 1.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: #fff; }
+    .brand span { color: #ffd363; }
+    .menu { display: flex; gap: 14px; list-style: none; flex-wrap: wrap; }
+    .menu li a { color: var(--muted); text-decoration: none; font-weight: 600; transition: color .2s; }
+    .menu li a:hover { color: #fff; }
+    .search-wrap { position: relative; flex: 1; max-width: 420px; }
+    .search-wrap input { width: 100%; padding: 10px 14px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.25); background: rgba(15, 20, 30, 0.85); color: #fff; }
+    .hero { position: relative; margin-top: 18px; border: 1px solid transparent; border-radius: 16px; overflow: hidden; background-size: cover; background-position: center; min-height: 460px;
+      /* Giảm lớp phủ để ảnh bìa rõ hơn */
+      background-image: linear-gradient(250deg, rgba(11, 16, 23, .55) 33%, rgba(11, 16, 23, .18) 50%, rgba(11, 16, 23, .72) 100%), url('img/bia.jpg');
+    }
+    .hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,16,23,.62) 20%, rgba(11,16,23,0.06) 65%, rgba(11,16,23,.70) 100%); }
+    .hero-content { position: relative; display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%; padding: 40px; }
+    .hero-title { font-size: clamp(2rem, 4vw, 4rem); font-weight: 800; line-height: 1.1; }
+    .hero-sub { color: var(--accent); font-size: 1.1rem; letter-spacing: .6px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 10px; }
+    .pill { background: rgba(0,0,0,.45); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; color: #fff; font-weight: 600; font-size: .85rem; }
+    .hero-desc { max-width: 600px; color: #dde3ee; margin-top: 14px; letter-spacing: .02em; }
+    .hero-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn { border: 0; border-radius: 999px; padding: 12px 24px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-play { background: linear-gradient(90deg, #ffd363 0%, #ff8a3c 100%); color: #000; }
+    .btn-like { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+    #member-btn {
+      background: #fff;
+      color: #111;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+    #member-btn:hover {
+      background: #f3f5f7;
+    }
+    #member-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.16);
+    }
+
+    /* Menu tài khoản dạng dropdown */
+    .member-wrap { position: relative; display: inline-flex; align-items: center; }
+    .member-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 320px;
+      background: #ffffff;
+      color: #111;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.22);
+      overflow: hidden;
+      display: none;
+      z-index: 1000;
+    }
+    .member-wrap.is-open .member-dropdown { display: block; }
+    .member-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      font-weight: 800;
+    }
+    .member-row + .member-row { border-top: 1px solid rgba(0,0,0,0.08); }
+    .member-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.06);
+      flex: 0 0 auto;
+    }
+    .member-row small { display: block; font-weight: 650; color: rgba(0,0,0,0.55); margin-top: 2px; }
+    .member-action {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 12px 14px;
+      font-weight: 850;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .member-action:hover { background: rgba(0,0,0,0.04); }
+
+    /* Toast thông báo đẹp */
+    .toast-wrap {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 2000;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      min-width: 280px;
+      max-width: 420px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: #fff;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.18);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      animation: toastIn .18s ease-out;
+    }
+    .toast-success { background: linear-gradient(90deg, #1cbf73 0%, #13a7a0 100%); }
+    .toast-error { background: linear-gradient(90deg, #ff4561 0%, #ff8a3c 100%); }
+    .toast-title { font-weight: 950; margin-bottom: 2px; }
+    .toast-msg { opacity: 0.95; font-weight: 700; }
+    .toast-close {
+      background: rgba(255,255,255,0.18);
+      border: 0;
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+    @keyframes toastIn { from { transform: translateY(-6px); opacity: .0; } to { transform: translateY(0); opacity: 1; } }
+    .section-title { margin-top: 34px; margin-bottom: 18px; font-size: 1.7rem; font-weight: 800; }
+    .cards { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 16px; overflow: hidden; }
+    .card { border-radius: 16px; padding: 20px; min-height: 150px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); transition: transform .2s ease, box-shadow .2s ease; }
+    .card h3 { margin-bottom: 8px; font-size: 1.3rem; }
+    .card small {
+      color: rgba(255,255,255,0.95);
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      letter-spacing: 0.03em;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 14px 35px rgba(0,0,0,0.25); }
+    .card.vientuong { background: linear-gradient(135deg, #d32f2f 0%, #e66465 100%); }
+    .card.thailan { background: linear-gradient(135deg, #3146e8 0%, #8c65ff 100%); }
+    .card.sitcom { background: linear-gradient(135deg, #0aa18e 0%, #4cbf8d 100%); }
+    .card.chieurp { background: linear-gradient(135deg, #7457d9 0%, #9d83ff 100%); }
+    .card.kinhdi { background: linear-gradient(135deg, #ed7b28 0%, #ff9b58 100%); }
+    .card.cotrang { background: linear-gradient(135deg, #c72a2f 0%, #e55661 100%); }
+    .card.more { background: linear-gradient(135deg, #4b516a 0%, #303a52 100%); }
+    .card small { color: var(--muted); display: block; margin-top: 8px; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+    @media(max-width: 900px){
+      .hero { min-height: 360px; }
+      .hero-content { padding: 24px; }
+      .nav-bottom { flex-wrap: wrap; }
+      .search-wrap { width: 100%; max-width: 100%; }
+    }
+    @media(max-width: 640px){ .menu{display:none;} .brand{font-size:1.1rem;}}
+
+    /* Popup thành viên */
+    .auth-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .auth-modal {
+      background: #151b28;
+      border-radius: 18px;
+      padding: 24px 24px 20px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.16);
+      position: relative;
+    }
+    .auth-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: #bfc6d8;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .auth-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      background: #111623;
+      padding: 4px;
+      border-radius: 999px;
+    }
+    .auth-tab {
+      flex: 1;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: #b1b9c7;
+      font-weight: 600;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .auth-tab-active {
+      background: linear-gradient(90deg, #ffd363 0%, #ff8a3c 100%);
+      color: #000;
+    }
+    .auth-body {
+      margin-top: 4px;
+    }
+    .auth-form {
+      display: none;
+    }
+    .auth-form-active {
+      display: block;
+    }
+    .auth-field {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .auth-field label {
+      font-size: 0.85rem;
+      color: #c7cfdd;
+    }
+    .auth-field input {
+      padding: 9px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: #111623;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .auth-field input:focus {
+      outline: none;
+      border-color: #ffd363;
+      box-shadow: 0 0 0 1px rgba(255,211,99,0.4);
+    }
+    .auth-submit {
+      width: 100%;
+      justify-content: center;
+      margin-top: 6px;
+    }
+    .auth-switch {
+      margin-top: 10px;
+      font-size: 0.86rem;
+      color: #b7bfd0;
+      text-align: center;
+    }
+    .auth-switch a {
+      color: #ffd363;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .auth-switch a:hover {
+      text-decoration: underline;
+    }
+    .auth-hint {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: #7e8596;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="navbar">
+      <div class="nav-top">
+        <div class="brand"><span>Liqi</span> Phim</div>
+        <div class="member-wrap" id="member-wrap">
+          <button class="btn btn-like" id="member-btn" style="padding: 8px 14px;">Thành viên</button>
+          <div class="member-dropdown" id="member-dropdown" aria-hidden="true">
+            <div class="member-row">
+              <div class="member-icon">👤</div>
+              <div>
+                <div id="member-name">Xin chào</div>
+                <small id="member-email"></small>
+              </div>
+            </div>
+            <button class="member-action" id="member-logout" type="button">
+              <span class="member-icon" style="width:30px;height:30px;border-radius:9px;">⎋</span>
+              Đăng xuất
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-bottom">
+        <ul class="menu">
+          <li><a href="#">Chủ đề</a></li>
+          <li><a href="#">Thể loại</a></li>
+          <li><a href="#">Phim lẻ</a></li>
+          <li><a href="#">Phim bộ</a></li>
+          <li><a href="#">Xem chung</a></li>
+          <li><a href="#">Lịch chiếu</a></li>
+          <li><a href="#">Reviews</a></li>
+        </ul>
+        <div class="search-wrap"><input type="search" placeholder="Tìm kiếm phim, diễn viên..." /></div>
+      </div>
+    </nav>
+
+    <section class="hero" aria-label="Feature movie">
+      <div class="hero-content">
+        <div class="hero-sub">How Dare You!?</div>
+        <h1 class="hero-title">Còn Ra Thế Thống Gì Nữa</h1>
+        <div class="hero-meta">
+          <span class="pill">IMDb 0.0</span>
+          <span class="pill">T16</span>
+          <span class="pill">2026</span>
+          <span class="pill">Phần 2</span>
+          <span class="pill">Tập Hoàn Tất (32/32)</span>
+        </div>
+        <p class="hero-desc">Nhân viên văn phòng mới vào nghề Vương Thủy Hoa bất ngờ bị cuốn vào thế giới tiểu thuyết, nơi cô gặp Hạ Hầu Đan, một vị vua quyền lực đang che giấu thân phận thật sự...</p>
+        <div class="hero-actions">
+          <button class="btn btn-play">▶ Xem phim</button>
+          <button class="btn btn-like">❤ Thích</button>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Bạn đang quan tâm gì?</h2>
+    <div class="cards">
+      <article class="card vientuong"><h3>Viễn Tưởng</h3><small>Xem chủ đề →</small></article>
+      <article class="card thailan"><h3>Thái Lan</h3><small>Xem chủ đề →</small></article>
+      <article class="card sitcom"><h3>Sitcom</h3><small>Xem chủ đề →</small></article>
+      <article class="card chieurp"><h3>Chiếu Rạp</h3><small>Xem chủ đề →</small></article>
+      <article class="card kinhdi"><h3>Kinh Dị</h3><small>Xem chủ đề →</small></article>
+      <article class="card cotrang"><h3>Cổ Trang</h3><small>Xem chủ đề →</small></article>
+      <article class="card more"><h3>+2 chủ đề</h3><small>Xem chủ đề →</small></article>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toast-wrap" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Modal Thành viên -->
+  <div class="auth-backdrop" id="auth-backdrop" style="display:none;">
+    <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <button class="auth-close" id="auth-close" aria-label="Đóng">×</button>
+      <h2 id="auth-title" class="auth-title">Thành viên</h2>
+
+      <div class="auth-tabs">
+        <button class="auth-tab auth-tab-active" data-tab="login">Đăng nhập</button>
+        <button class="auth-tab" data-tab="register">Đăng ký</button>
+      </div>
+
+      <div class="auth-body">
+        <form id="login-form" class="auth-form auth-form-active">
+          <div class="auth-field">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" placeholder="Nhập email của bạn" required />
+          </div>
+          <div class="auth-field">
+            <label for="login-password">Mật khẩu</label>
+            <input type="password" id="login-password" placeholder="Nhập mật khẩu" required minlength="6" />
+          </div>
+          <button type="submit" class="btn btn-play auth-submit">Đăng nhập</button>
+          <p class="auth-switch">
+            Nếu bạn chưa có tài khoản,
+            <a href="#" id="go-register">đăng ký ngay</a>
+          </p>
+        </form>
+
+        <form id="register-form" class="auth-form">
+          <div class="auth-field">
+            <label for="reg-name">Họ và tên</label>
+            <input type="text" id="reg-name" placeholder="Nhập họ tên" required />
+          </div>
+          <div class="auth-field">
+            <label for="reg-email">Email</label>
+            <input type="email" id="reg-email" placeholder="Nhập email" required />
+          </div>
+          <div class="auth-field">
+            <label for="reg-password">Mật khẩu</label>
+            <input type="password" id="reg-password" placeholder="Tối thiểu 6 ký tự" required minlength="6" />
+          </div>
+          <div class="auth-field">
+            <label for="reg-password-confirm">Nhập lại mật khẩu</label>
+            <input type="password" id="reg-password-confirm" placeholder="Nhập lại mật khẩu" required minlength="6" />
+          </div>
+          <button type="submit" class="btn btn-play auth-submit">Tạo tài khoản</button>
+          <p class="auth-switch">
+            Nếu bạn đã có tài khoản,
+            <a href="#" id="go-login">đăng nhập ngay</a>
+          </p>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+
+  
+
+  <script>
+    (function () {
+      const memberBtn = document.getElementById('member-btn');
+      const backdrop = document.getElementById('auth-backdrop');
+      const closeBtn = document.getElementById('auth-close');
+      const memberWrap = document.getElementById('member-wrap');
+      const memberDropdown = document.getElementById('member-dropdown');
+      const memberName = document.getElementById('member-name');
+      const memberEmail = document.getElementById('member-email');
+      const memberLogout = document.getElementById('member-logout');
+      const toastWrap = document.getElementById('toast-wrap');
+      const tabs = document.querySelectorAll('.auth-tab');
+      const forms = document.querySelectorAll('.auth-form');
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const goRegister = document.getElementById('go-register');
+      const goLogin = document.getElementById('go-login');
+      let currentUser = null;
+
+      function openModal() {
+        backdrop.style.display = 'flex';
+      }
+
+      function closeModal() {
+        backdrop.style.display = 'none';
+      }
+
+      function showToast(type, title, message) {
+        if (!toastWrap) return;
+        const el = document.createElement('div');
+        el.className = 'toast ' + (type === 'success' ? 'toast-success' : 'toast-error');
+        el.innerHTML =
+          '<div>' +
+            '<div class="toast-title">' + title + '</div>' +
+            '<div class="toast-msg">' + message + '</div>' +
+          '</div>' +
+          '<button class="toast-close" aria-label="Đóng">×</button>';
+
+        const close = function () {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        };
+
+        el.querySelector('.toast-close').addEventListener('click', close);
+        toastWrap.appendChild(el);
+        setTimeout(close, 2800);
+      }
+
+      function setDropdownOpen(open) {
+        if (!memberWrap || !memberDropdown) return;
+        memberWrap.classList.toggle('is-open', !!open);
+        memberDropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
+      }
+
+      function updateMemberButton() {
+        if (!memberBtn) return;
+        if (currentUser && (currentUser.fullName || currentUser.email)) {
+          const name = (currentUser.fullName || currentUser.email).split(' ')[0];
+          memberBtn.textContent = 'Xin chào, ' + name;
+          if (memberName) memberName.textContent = 'Xin chào, ' + (currentUser.fullName || name);
+          if (memberEmail) memberEmail.textContent = currentUser.email || '';
+        } else {
+          memberBtn.textContent = 'Thành viên';
+          if (memberName) memberName.textContent = 'Xin chào';
+          if (memberEmail) memberEmail.textContent = '';
+          setDropdownOpen(false);
+        }
+      }
+
+      memberBtn && memberBtn.addEventListener('click', function () {
+        if (currentUser) {
+          // Khi đã đăng nhập, click chỉ toggle dropdown
+          setDropdownOpen(!memberWrap.classList.contains('is-open'));
+        } else {
+          openModal();
+        }
+      });
+      closeBtn && closeBtn.addEventListener('click', closeModal);
+      backdrop && backdrop.addEventListener('click', function (e) {
+        if (e.target === backdrop) {
+          closeModal();
+        }
+      });
+
+      // Click ra ngoài sẽ đóng dropdown
+      document.addEventListener('click', function (e) {
+        if (!memberWrap || !memberWrap.classList.contains('is-open')) return;
+        if (memberWrap.contains(e.target)) return;
+        setDropdownOpen(false);
+      });
+
+      memberLogout && memberLogout.addEventListener('click', function () {
+        fetch('/api/auth/logout', { method: 'POST' })
+          .then(function () {
+            currentUser = null;
+            updateMemberButton();
+            showToast('success', 'Thành công', 'Đã đăng xuất.');
+          })
+          .catch(function () {
+            currentUser = null;
+            updateMemberButton();
+            showToast('error', 'Lỗi', 'Đăng xuất thất bại.');
+          });
+      });
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          const target = tab.getAttribute('data-tab');
+
+          tabs.forEach(function (t) {
+            t.classList.toggle('auth-tab-active', t === tab);
+          });
+
+          forms.forEach(function (form) {
+            form.classList.toggle('auth-form-active', form.id.indexOf(target) === 0);
+          });
+        });
+      });
+
+      goRegister && goRegister.addEventListener('click', function (e) {
+        e.preventDefault();
+        tabs[1] && tabs[1].click();
+      });
+
+      goLogin && goLogin.addEventListener('click', function (e) {
+        e.preventDefault();
+        tabs[0] && tabs[0].click();
+      });
+
+      function setLoggedInUser(user) {
+        currentUser = user;
+        updateMemberButton();
+        closeModal();
+      }
+
+      loginForm && loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        if (!email || !password) {
+          alert('Vui lòng nhập đầy đủ email và mật khẩu.');
+          return;
+        }
+
+        fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: email, password: password })
+        })
+          .then(function (res) {
+            if (!res.ok) {
+              return res.json().then(function (data) {
+                throw new Error(data.message || 'Đăng nhập thất bại');
+              }).catch(function () {
+                throw new Error('Đăng nhập thất bại');
+              });
+            }
+            return res.json();
+          })
+          .then(function (data) {
+            showToast('success', 'Đăng nhập thành công', 'Xin chào ' + (data.fullName || data.email) + '!');
+            setLoggedInUser(data);
+          })
+          .catch(function (err) {
+            showToast('error', 'Đăng nhập thất bại', err.message);
+          });
+      });
+
+      registerForm && registerForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('reg-name').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const confirm = document.getElementById('reg-password-confirm').value;
+
+        if (!name || !email || !password || !confirm) {
+          alert('Vui lòng điền đầy đủ thông tin.');
+          return;
+        }
+        if (password.length < 6) {
+          alert('Mật khẩu phải từ 6 ký tự trở lên.');
+          return;
+        }
+        if (password !== confirm) {
+          alert('Mật khẩu nhập lại không khớp.');
+          return;
+        }
+
+        fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            fullName: name,
+            email: email,
+            password: password
+          })
+        })
+          .then(function (res) {
+            if (!res.ok) {
+              return res.json().then(function (data) {
+                throw new Error(data.message || 'Đăng ký thất bại');
+              }).catch(function () {
+                throw new Error('Đăng ký thất bại');
+              });
+            }
+            return res.json();
+          })
+          .then(function (data) {
+            showToast('success', 'Đăng ký thành công', 'Chào mừng bạn đến với Liqi Phim!');
+            setLoggedInUser(data);
+          })
+          .catch(function (err) {
+            showToast('error', 'Đăng ký thất bại', err.message);
+          });
+      });
+
+      // Khi tải trang, hỏi server xem đã đăng nhập chưa
+      fetch('/api/auth/me')
+        .then(function (res) {
+          if (!res.ok) {
+            throw new Error();
+          }
+          return res.json();
+        })
+        .then(function (data) {
+          currentUser = data;
+          updateMemberButton();
+        })
+        .catch(function () {
+          currentUser = null;
+          updateMemberButton();
+        });
+    })();
+  </script>
+</body>
+</html>
