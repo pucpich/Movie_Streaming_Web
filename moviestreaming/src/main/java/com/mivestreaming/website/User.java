@@ -1,59 +1,65 @@
 package com.mivestreaming.website;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Entity
-@Table(name = "users")
+/**
+ * Entity đại diện cho người dùng trong hệ thống (MongoDB).
+ * Hỗ trợ 2 vai trò: USER (mặc định) và ADMIN.
+ */
+@Document(collection = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    // ----------------------------- Enum Role -----------------------------
 
-    @Column(nullable = false)
+    /**
+     * Phân quyền hệ thống:
+     *   ROLE_USER  – người dùng thông thường
+     *   ROLE_ADMIN – quản trị viên, có quyền CRUD phim
+     */
+    public enum Role {
+        ROLE_USER,
+        ROLE_ADMIN
+    }
+
+    // ----------------------------- Fields --------------------------------
+
+    @Id
+    private String id;
+
+    @Field("full_name")
     private String fullName;
 
-    @Column(nullable = false, unique = true)
+    @Field("email")
     private String email;
 
-    @Column(nullable = false)
+    @Field("password")
     private String password;
 
-    public Long getId() {
-        return id;
-    }
+    /** Vai trò của user, mặc định là ROLE_USER */
+    @Field("role")
+    private Role role = Role.ROLE_USER;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    // ----------------------------- Getters / Setters ---------------------
 
-    public String getFullName() {
-        return fullName;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getPassword() {
-        return password;
-    }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
-    public void setPassword(String password) {
-        this.password = password;
+    // Tiện ích kiểm tra nhanh
+    public boolean isAdmin() {
+        return Role.ROLE_ADMIN.equals(this.role);
     }
 }
-

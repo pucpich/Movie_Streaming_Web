@@ -27,18 +27,29 @@
     .menu li a:hover { color: #fff; }
     .search-wrap { position: relative; flex: 1; max-width: 420px; }
     .search-wrap input { width: 100%; padding: 10px 14px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.25); background: rgba(15, 20, 30, 0.85); color: #fff; }
-    .hero { position: relative; margin-top: 18px; border: 1px solid transparent; border-radius: 16px; overflow: hidden; background-size: cover; background-position: center; min-height: 460px;
+    .hero { position: relative; margin-top: 18px; border: 1px solid transparent; border-radius: 16px; overflow: hidden; background-size: cover; background-position: center; min-height: 520px; transition: background-image 0.5s ease;
       /* Giảm lớp phủ để ảnh bìa rõ hơn */
       background-image: linear-gradient(250deg, rgba(11, 16, 23, .55) 33%, rgba(11, 16, 23, .18) 50%, rgba(11, 16, 23, .72) 100%), url('img/bia.jpg');
     }
-    .hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,16,23,.62) 20%, rgba(11,16,23,0.06) 65%, rgba(11,16,23,.70) 100%); }
-    .hero-content { position: relative; display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%; padding: 40px; }
-    .hero-title { font-size: clamp(2rem, 4vw, 4rem); font-weight: 800; line-height: 1.1; }
-    .hero-sub { color: var(--accent); font-size: 1.1rem; letter-spacing: .6px; }
-    .hero-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 10px; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,16,23,.62) 20%, rgba(11,16,23,0.06) 65%, rgba(11,16,23,.70) 100%); pointer-events: none; }
+    .hero-content { position: relative; display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%; padding: 40px; z-index: 2; pointer-events: none; }
+    .hero-title { font-size: clamp(2rem, 4vw, 4rem); font-weight: 800; line-height: 1.1; pointer-events: auto; }
+    .hero-sub { color: var(--accent); font-size: 1.1rem; letter-spacing: .6px; pointer-events: auto; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 10px; pointer-events: auto; }
     .pill { background: rgba(0,0,0,.45); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; color: #fff; font-weight: 600; font-size: .85rem; }
-    .hero-desc { max-width: 600px; color: #dde3ee; margin-top: 14px; letter-spacing: .02em; }
-    .hero-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .hero-desc { max-width: 600px; color: #dde3ee; margin-top: 14px; letter-spacing: .02em; pointer-events: auto; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .hero-actions { display: flex; gap: 10px; margin-top: 20px; pointer-events: auto; }
+    .hero-thumbnails-wrap {
+      position: absolute; bottom: 20px; right: 20px; left: 20px; display: flex; justify-content: flex-end; gap: 12px;
+      overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; z-index: 10;
+    }
+    .hero-thumbnails-wrap::-webkit-scrollbar { display: none; }
+    .hero-thumb {
+      width: 140px; aspect-ratio: 16/9; border-radius: 8px; cursor: pointer; object-fit: cover;
+      opacity: 0.5; border: 2px solid transparent; transition: all 0.3s ease; flex-shrink: 0;
+    }
+    .hero-thumb:hover { opacity: 0.8; transform: translateY(-2px); }
+    .hero-thumb.active { opacity: 1; border-color: #fff; transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     .btn { border: 0; border-radius: 999px; padding: 12px 24px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
     .btn-play { background: linear-gradient(90deg, #ffd363 0%, #ff8a3c 100%); color: #000; }
     .btn-like { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
@@ -291,6 +302,101 @@
       color: #7e8596;
       text-align: center;
     }
+
+    /* Phim từ TMDB API - Horizontal Slider */
+    .slider-container {
+      position: relative;
+      margin-top: 16px;
+    }
+    .movie-grid {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding-bottom: 8px;
+      /* Ẩn thanh cuộn */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .movie-grid::-webkit-scrollbar {
+      display: none;
+    }
+    .movie-card {
+      flex: 0 0 160px;
+      width: 160px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--card);
+      border: 1px solid var(--border);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .movie-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+    }
+    .movie-card img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+    .movie-card .movie-info {
+      padding: 10px 12px;
+    }
+    .movie-card .movie-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .movie-card .movie-rating {
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .movie-card .movie-placeholder {
+      width: 100%;
+      aspect-ratio: 2/3;
+      background: linear-gradient(135deg, #2a3548 0%, #1a2235 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 2.5rem;
+    }
+    /* Nút mũi tên slider */
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 42px;
+      height: 64px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.62);
+      color: #fff;
+      font-size: 1.7rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, opacity .2s;
+      opacity: 0.85;
+      backdrop-filter: blur(4px);
+    }
+    .slider-btn:hover {
+      background: rgba(255, 211, 99, 0.85);
+      color: #000;
+      opacity: 1;
+    }
+    .slider-btn-left  { left: -18px; }
+    .slider-btn-right { right: -18px; }
+    .slider-btn[hidden] { display: none; }
   </style>
 </head>
 <body>
@@ -326,27 +432,24 @@
           <li><a href="#">Lịch chiếu</a></li>
           <li><a href="#">Reviews</a></li>
         </ul>
-        <div class="search-wrap"><input type="search" placeholder="Tìm kiếm phim, diễn viên..." /></div>
+        <div class="search-wrap"><input type="search" id="search-input" placeholder="Tìm kiếm phim, diễn viên..." /></div>
       </div>
     </nav>
 
-    <section class="hero" aria-label="Feature movie">
+    <section class="hero" id="hero-section" aria-label="Feature movie">
       <div class="hero-content">
-        <div class="hero-sub">How Dare You!?</div>
-        <h1 class="hero-title">Còn Ra Thế Thống Gì Nữa</h1>
-        <div class="hero-meta">
-          <span class="pill">IMDb 0.0</span>
-          <span class="pill">T16</span>
-          <span class="pill">2026</span>
-          <span class="pill">Phần 2</span>
-          <span class="pill">Tập Hoàn Tất (32/32)</span>
+        <div class="hero-sub" id="hero-sub">Đang tải...</div>
+        <h1 class="hero-title" id="hero-title">Liqi Phim</h1>
+        <div class="hero-meta" id="hero-meta">
+          <span class="pill">TMDB</span>
         </div>
-        <p class="hero-desc">Nhân viên văn phòng mới vào nghề Vương Thủy Hoa bất ngờ bị cuốn vào thế giới tiểu thuyết, nơi cô gặp Hạ Hầu Đan, một vị vua quyền lực đang che giấu thân phận thật sự...</p>
+        <p class="hero-desc" id="hero-desc">Đang tải phim phổ biến...</p>
         <div class="hero-actions">
-          <button class="btn btn-play">▶ Xem phim</button>
+          <button class="btn btn-play" id="hero-play-btn">▶ Xem phim</button>
           <button class="btn btn-like">❤ Thích</button>
         </div>
       </div>
+      <div class="hero-thumbnails-wrap" id="hero-thumbnails-wrap"></div>
     </section>
 
     <h2 class="section-title">Bạn đang quan tâm gì?</h2>
@@ -358,6 +461,20 @@
       <article class="card kinhdi"><h3>Kinh Dị</h3><small>Xem chủ đề →</small></article>
       <article class="card cotrang"><h3>Cổ Trang</h3><small>Xem chủ đề →</small></article>
       <article class="card more"><h3>+2 chủ đề</h3><small>Xem chủ đề →</small></article>
+    </div>
+
+    <h2 class="section-title" id="movies-section-title">Phim phổ biến</h2>
+    <div class="slider-container">
+      <button class="slider-btn slider-btn-left" id="slider-prev" aria-label="Xem trước" hidden>&#8249;</button>
+      <div class="movie-grid" id="movie-grid"></div>
+      <button class="slider-btn slider-btn-right" id="slider-next" aria-label="Xem tiếp">&#8250;</button>
+    </div>
+
+    <h2 class="section-title">Phim đánh giá cao &#11088;</h2>
+    <div class="slider-container">
+      <button class="slider-btn slider-btn-left" id="tr-slider-prev" aria-label="Xem trước" hidden>&#8249;</button>
+      <div class="movie-grid" id="top-rated-grid"></div>
+      <button class="slider-btn slider-btn-right" id="tr-slider-next" aria-label="Xem tiếp">&#8250;</button>
     </div>
   </div>
 
@@ -656,6 +773,199 @@
           currentUser = null;
           updateMemberButton();
         });
+
+      // TMDB API - Phim phổ biến & tìm kiếm
+      const { grid: movieGrid, updateBtns: updateSliderBtns } = makeSlider('movie-grid', 'slider-prev', 'slider-next');
+      const { grid: topRatedGrid, updateBtns: updateTRBtns }  = makeSlider('top-rated-grid', 'tr-slider-prev', 'tr-slider-next');
+      const heroSection = document.getElementById('hero-section');
+      const heroSub = document.getElementById('hero-sub');
+      const heroTitle = document.getElementById('hero-title');
+      const heroMeta = document.getElementById('hero-meta');
+      const heroDesc = document.getElementById('hero-desc');
+      const moviesSectionTitle = document.getElementById('movies-section-title');
+      const searchInput = document.getElementById('search-input');
+
+      // ---- Helper: tạo slider độc lập cho một grid bất kỳ ----
+      function makeSlider(gridId, prevId, nextId) {
+        const grid = document.getElementById(gridId);
+        const prev = document.getElementById(prevId);
+        const next = document.getElementById(nextId);
+        function updateBtns() {
+          if (!grid) return;
+          const atStart = grid.scrollLeft <= 4;
+          const atEnd   = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 4;
+          if (prev) prev.hidden = atStart;
+          if (next) next.hidden = atEnd;
+        }
+        prev && prev.addEventListener('click', function () { grid && grid.scrollBy({ left: -620, behavior: 'smooth' }); });
+        next && next.addEventListener('click', function () { grid && grid.scrollBy({ left:  620, behavior: 'smooth' }); });
+        grid && grid.addEventListener('scroll', updateBtns);
+        return { grid, updateBtns };
+      }
+
+      function renderMovies(movies) {
+        buildCards(movies, movieGrid, updateSliderBtns);
+      }
+
+      function buildCards(movies, grid, updateBtns) {
+        if (!grid) return;
+        grid.innerHTML = '';
+        grid.scrollLeft = 0;
+        if (!movies || movies.length === 0) {
+          grid.innerHTML = '<p style="padding:12px;color:var(--muted);">Không tìm thấy phim.</p>';
+          updateBtns();
+          return;
+        }
+        movies.forEach(function (m) {
+          const title     = m.title || m.name || 'Không có tên';
+          const rating    = m.vote_average != null ? m.vote_average.toFixed(1) : '-';
+          const posterUrl = m.poster_url || null;
+          const year      = (m.release_date || m.first_air_date || '').substring(0, 4);
+          const card      = document.createElement('article');
+          card.className  = 'movie-card';
+          card.innerHTML  =
+            (posterUrl ? '<img src="' + posterUrl + '" alt="' + title + '" loading="lazy" />' : '<div class="movie-placeholder">🎬</div>') +
+            '<div class="movie-info">' +
+              '<div class="movie-title">' + title + '</div>' +
+              '<div class="movie-rating">★ ' + rating + (year ? ' · ' + year : '') + '</div>' +
+            '</div>';
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', function() {
+            window.location.href = 'movie.html?id=' + m.id;
+          });
+          grid.appendChild(card);
+        });
+        setTimeout(updateBtns, 50);
+      }
+
+      // Hero Carousel Logic
+      let heroMoviesList = [];
+      let currentHeroIdx = 0;
+      let heroAutoPlayInterval = null;
+
+      function updateHero(movie, index) {
+        if (!movie || !heroSection) return;
+        const title = movie.title || movie.name || 'Liqi Phim';
+        const desc = movie.overview || '';
+        const rating = movie.vote_average != null ? movie.vote_average.toFixed(1) : '-';
+        const year = (movie.release_date || movie.first_air_date || '').substring(0, 4);
+        const backdrop = movie.backdrop_url;
+        if (heroSub) heroSub.textContent = year ? year : 'Phim mới';
+        if (heroTitle) heroTitle.textContent = title;
+        if (heroMeta) {
+          heroMeta.innerHTML = '<span class="pill">TMDB ' + rating + '</span>' +
+            (year ? '<span class="pill">' + year + '</span>' : '');
+        }
+        if (heroDesc) {
+           heroDesc.textContent = desc.length > 200 ? desc.substring(0, 200) + '...' : (desc || 'Không có mô tả.');
+        }
+        if (backdrop) {
+          heroSection.style.backgroundImage = 'linear-gradient(250deg, rgba(11, 16, 23, .55) 33%, rgba(11, 16, 23, .18) 50%, rgba(11, 16, 23, .72) 100%), url(\'' + backdrop + '\')';
+        }
+        
+        const playBtn = document.getElementById('hero-play-btn');
+        if (playBtn) {
+          playBtn.onclick = function() { window.location.href = 'movie.html?id=' + movie.id; };
+        }
+
+        const thumbs = document.querySelectorAll('.hero-thumb');
+        thumbs.forEach(function(th, i) {
+          if (i === index) {
+            th.classList.add('active');
+            th.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          } else {
+            th.classList.remove('active');
+          }
+        });
+      }
+
+      function renderHeroThumbnails() {
+        const wrap = document.getElementById('hero-thumbnails-wrap');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        const limit = Math.min(heroMoviesList.length, 10);
+        for(let i = 0; i < limit; i++) {
+          const m = heroMoviesList[i];
+          const img = document.createElement('img');
+          img.src = m.backdrop_url ? m.backdrop_url : (m.poster_url || '');
+          img.className = 'hero-thumb' + (i === 0 ? ' active' : '');
+          img.alt = m.title || m.name || '';
+          img.onclick = function() {
+            currentHeroIdx = i;
+            updateHero(m, i);
+            resetHeroInterval();
+          };
+          wrap.appendChild(img);
+        }
+      }
+
+      function nextHero() {
+        if (heroMoviesList.length === 0) return;
+        const limit = Math.min(heroMoviesList.length, 10);
+        currentHeroIdx = (currentHeroIdx + 1) % limit;
+        updateHero(heroMoviesList[currentHeroIdx], currentHeroIdx);
+      }
+
+      function resetHeroInterval() {
+        if (heroAutoPlayInterval) clearInterval(heroAutoPlayInterval);
+        heroAutoPlayInterval = setInterval(nextHero, 5000);
+      }
+
+      function loadMovies(query) {
+        const url = (query && query.trim())
+          ? '/api/movies/search?q=' + encodeURIComponent(query.trim()) + '&page=1'
+          : '/api/movies/popular?page=1';
+        if (moviesSectionTitle) {
+          moviesSectionTitle.textContent = query && query.trim() ? 'Kết quả tìm kiếm' : 'Phim phổ biến';
+        }
+        movieGrid && (movieGrid.innerHTML = '<p style="grid-column:1/-1;color:var(--muted);">Đang tải...</p>');
+        fetch(url)
+          .then(function (res) { return res.json(); })
+          .then(function (movies) {
+            renderMovies(movies);
+            if (movies && movies.length > 0 && !query) {
+              heroMoviesList = movies;
+              currentHeroIdx = 0;
+              renderHeroThumbnails();
+              updateHero(movies[0], 0);
+              resetHeroInterval();
+            } else if (query) {
+              if (heroAutoPlayInterval) clearInterval(heroAutoPlayInterval);
+              if (movies.length > 0) updateHero(movies[0], 0);
+              const wrap = document.getElementById('hero-thumbnails-wrap');
+              if (wrap) wrap.innerHTML = '';
+            }
+          })
+          .catch(function () {
+            if (movieGrid) movieGrid.innerHTML = '<p style="grid-column:1/-1;color:var(--accent2);">Không thể tải phim. Kiểm tra kết nối hoặc API key.</p>';
+          });
+      }
+
+      loadMovies();
+
+      // Load slider Phim đánh giá cao
+      topRatedGrid && (topRatedGrid.innerHTML = '<p style="padding:12px;color:var(--muted);">Đang tải...</p>');
+      fetch('/api/movies/top-rated?page=1')
+        .then(function (res) { return res.json(); })
+        .then(function (movies) { buildCards(movies, topRatedGrid, updateTRBtns); })
+        .catch(function () {
+          if (topRatedGrid) topRatedGrid.innerHTML = '<p style="padding:12px;color:var(--accent2);">Không thể tải phim.</p>';
+        });
+
+      var searchTimeout;
+      searchInput && searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        var q = searchInput.value.trim();
+        searchTimeout = setTimeout(function () {
+          loadMovies(q);
+        }, 400);
+      });
+      searchInput && searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          clearTimeout(searchTimeout);
+          loadMovies(searchInput.value.trim());
+        }
+      });
     })();
   </script>
 </body>
