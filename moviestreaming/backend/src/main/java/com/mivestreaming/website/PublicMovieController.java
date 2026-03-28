@@ -8,13 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Controller API công khai – mọi user đều truy cập được (không cần đăng nhập).
- *
- * Base path: /api/library
- *
- * Đây là danh sách phim do Admin thêm vào hệ thống (khác với TMDB API).
- */
 @RestController
 @RequestMapping("/api/library")
 @CrossOrigin
@@ -26,14 +19,6 @@ public class PublicMovieController {
         this.movieRepository = movieRepository;
     }
 
-    /**
-     * GET /api/library/movies
-     * Lấy toàn bộ danh sách phim để hiển thị trang chủ.
-     *
-     * Query params (tuỳ chọn):
-     *   ?genre=Hành+động   – lọc theo thể loại
-     *   ?q=avatar          – tìm kiếm theo tên
-     */
     @GetMapping("/movies")
     public ResponseEntity<List<Movie>> getMovies(
             @RequestParam(required = false) String genre,
@@ -55,10 +40,6 @@ public class PublicMovieController {
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * GET /api/library/movies/{id}
-     * Xem chi tiết một bộ phim cụ thể.
-     */
     @GetMapping("/movies/{id}")
     public ResponseEntity<?> getMovieDetail(@PathVariable String id) {
         Optional<Movie> opt = movieRepository.findById(id);

@@ -9,18 +9,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Middleware (Filter) xác thực JWT.
- *
- * Hoạt động:
- *   1. Đọc header "Authorization: Bearer <token>"
- *   2. Nếu có token hợp lệ → gắn thông tin user (userId, email, role)
- *      vào request attribute để các Controller đọc được
- *   3. Nếu không có hoặc token lỗi → để request đi qua bình thường
- *      (các endpoint cần auth sẽ tự kiểm tra trong Controller/AdminGuard)
- *
- * Filter chạy đúng 1 lần cho mỗi request (OncePerRequestFilter).
- */
+
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 

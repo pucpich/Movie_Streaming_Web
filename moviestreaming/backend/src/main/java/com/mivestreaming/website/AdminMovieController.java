@@ -10,15 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Controller CRUD phim dành cho Admin.
- *
- * Base path: /api/admin/movies
- *
- * Mọi endpoint đều được bảo vệ bởi AdminGuard:
- *   - 401 nếu chưa đăng nhập (không có JWT hoặc JWT không hợp lệ)
- *   - 403 nếu đã đăng nhập nhưng không phải ROLE_ADMIN
- */
 @RestController
 @RequestMapping("/api/admin/movies")
 @CrossOrigin
@@ -30,24 +21,6 @@ public class AdminMovieController {
         this.movieRepository = movieRepository;
     }
 
-    // =====================================================================
-    // C – CREATE: Thêm phim mới
-    // =====================================================================
-
-    /**
-     * POST /api/admin/movies
-     *
-     * Body JSON:
-     * {
-     *   "title":       "Avengers: Endgame",
-     *   "description": "...",
-     *   "genre":       "Hành động",
-     *   "posterUrl":   "https://...",
-     *   "videoUrl":    "https://...",
-     *   "rating":      8.4,
-     *   "releaseYear": 2019
-     * }
-     */
     @PostMapping
     public ResponseEntity<?> createMovie(@RequestBody MovieRequest body,
                                          HttpServletRequest request) {
@@ -78,14 +51,6 @@ public class AdminMovieController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    // =====================================================================
-    // R – READ: Đọc danh sách và chi tiết
-    // =====================================================================
-
-    /**
-     * GET /api/admin/movies
-     * Lấy toàn bộ danh sách phim (Admin xem để quản lý).
-     */
     @GetMapping
     public ResponseEntity<?> getAllMovies(HttpServletRequest request) {
         ResponseEntity<?> guard = AdminGuard.require(request);
@@ -95,10 +60,6 @@ public class AdminMovieController {
         return ResponseEntity.ok(movies);
     }
 
-    /**
-     * GET /api/admin/movies/{id}
-     * Lấy chi tiết một phim theo ID.
-     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getMovieById(@PathVariable String id,
                                            HttpServletRequest request) {
@@ -113,14 +74,6 @@ public class AdminMovieController {
         return ResponseEntity.ok(opt.get());
     }
 
-    // =====================================================================
-    // U – UPDATE: Cập nhật thông tin phim
-    // =====================================================================
-
-    /**
-     * PUT /api/admin/movies/{id}
-     * Cập nhật thông tin phim (chỉ các field được gửi lên mới thay đổi).
-     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateMovie(@PathVariable String id,
                                           @RequestBody MovieRequest body,
@@ -153,14 +106,6 @@ public class AdminMovieController {
         return ResponseEntity.ok(updated);
     }
 
-    // =====================================================================
-    // D – DELETE: Xoá phim
-    // =====================================================================
-
-    /**
-     * DELETE /api/admin/movies/{id}
-     * Xóa phim khỏi hệ thống.
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMovie(@PathVariable String id,
                                           HttpServletRequest request) {
@@ -176,11 +121,7 @@ public class AdminMovieController {
         return ResponseEntity.ok(Map.of("message", "Đã xóa phim ID " + id + " thành công."));
     }
 
-    // =====================================================================
-    // Inner class: Request body DTO
-    // =====================================================================
 
-    /** DTO nhận dữ liệu phim từ request body */
     public static class MovieRequest {
         private String  title;
         private String  description;

@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xem phim - Liqi Phim</title>
+  <style>
+    :root {
+      --bg: #0b1017;
+      --bg-light: #151c26;
+      --text: #f5f6fa;
+      --muted: #b1b9c7;
+      --accent: #ffd363;
+      --accent2: #ff4561;
+      --card: rgba(20, 30, 45, 0.85);
+      --border: rgba(255, 255, 255, 0.13);
+      --glass: rgba(15, 20, 30, 0.65);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* --- Navbar --- */
+    .header-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, rgba(11, 16, 23, 0.9) 0%, rgba(11, 16, 23, 0) 100%);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+    }
+
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .brand span { color: var(--accent); }
+    .back-btn { font-weight: 600; font-size: 1.1rem; transition: color 0.2s; }
+    .back-btn:hover { color: var(--accent); }
+
+    /* --- Player Container --- */
+    .player-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .player-header {
+      padding: 20px;
+      background: linear-gradient(to bottom, rgba(11, 16, 23, 0.9) 0%, rgba(11, 16, 23, 0) 100%);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .movie-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .poster-thumb {
+      width: 60px;
+      height: 90px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .movie-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .movie-meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .player-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #ffbf33;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* --- Player Wrapper --- */
+    .player-wrapper {
+      flex: 1;
+      position: relative;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .player-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #000;
+    }
+
+    .loading {
+      color: var(--text);
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .error {
+      color: var(--accent2);
+      font-size: 1.2rem;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .fallback-actions{
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .link-btn{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+    }
+    .link-btn:hover{ background: rgba(255,255,255,0.14); }
+
+    /* (Đã bỏ thanh seek + fullscreen controls theo yêu cầu) */
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-bar {
+        padding: 12px 20px;
+      }
+
+      .player-header {
+        padding: 15px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .player-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .movie-info {
+        flex: 1;
+      }
+
+      .movie-title {
+        font-size: 1.2rem;
+      }
+
+      .controls-row {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .time-display {
+        order: -1;
+        text-align: left;
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header-bar">
+    <a href="javascript:history.back()" class="back-btn">← Quay lại</a>
+    <div class="brand"><span>Liqi</span> Phim</div>
+    <div></div> <!-- Spacer -->
+  </header>
+
+  <!-- Player Container -->
+  <div class="player-container">
+    <div class="player-header">
+      <div class="movie-info">
+        <img id="poster-thumb" class="poster-thumb" src="" alt="Poster" />
+        <div>
+          <h1 class="movie-title" id="movie-title">Đang tải...</h1>
+          <div class="movie-meta" id="movie-meta"></div>
+        </div>
+      </div>
+
+      <div class="player-actions">
+        <button class="btn btn-secondary" id="trailer-btn">📺 Trailer</button>
+      </div>
+    </div>
+
+    <div class="player-wrapper">
+      <div class="loading" id="loading">Đang tải player...</div>
+      <div class="error" id="error" style="display:none;"></div>
+
+      <iframe
+        id="player-frame"
+        class="player-frame"
+        title="Movie Player"
+        src=""
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="display:none;"
+      ></iframe>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+    const API_BASE = window.API_BASE || 'http://localhost:8080';
+    function apiUrl(path){ return API_BASE + path; }
+    let jwtToken = null;
+
+    // Helper: Lấy JWT token từ localStorage
+    function getStoredToken() {
+      return localStorage.getItem('jwt_token');
+    }
+
+    // Helper: Tạo headers với Authorization
+    function getAuthHeaders() {
+      const headers = { 'Content-Type': 'application/json' };
+      if (jwtToken) {
+        headers['Authorization'] = 'Bearer ' + jwtToken;
+      }
+      return headers;
+    }
+
+    // Get movie ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('id');
+
+    // Gate: chỉ premium/admin mới được xem phim
+    (function gatePremium(){
+      jwtToken = getStoredToken();
+      if (!jwtToken) {
+        window.location.href = 'premium.html?next=' + encodeURIComponent('watch.html' + window.location.search);
+        return;
+      }
+      fetch(apiUrl('/api/auth/me'), { headers: getAuthHeaders() })
+        .then(res => res.ok ? res.json() : Promise.reject(res))
+        .then(me => {
+          const role = me && me.role ? String(me.role) : '';
+          const ok = role === 'ROLE_PREMIUM' || role === 'ROLE_ADMIN';
+          if (!ok) {
+            window.location.href = 'premium.html?next=' + encodeURIComponent('watch.html' + window.location.search);
+          }
+        })
+        .catch(() => {
+          window.location.href = 'premium.html?next=' + encodeURIComponent('watch.html' + window.location.search);
+        });
+    })();
+
+    if (!movieId) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('error').textContent = 'Không tìm thấy ID phim';
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // Load movie data
+    console.log('Loading movie with ID:', movieId);
+    fetch(apiUrl('/api/movies/' + encodeURIComponent(movieId)))
+      .then(response => {
+        console.log('API response status:', response.status);
+        if (!response.ok) throw new Error('Không thể tải thông tin phim');
+        return response.json();
+      })
+      .then(movie => {
+        console.log('Movie data loaded:', movie);
+        // Update UI
+        document.getElementById('movie-title').textContent = movie.title || movie.name || 'Không có tên';
+        document.getElementById('poster-thumb').src = movie.poster_url || '';
+        document.getElementById('poster-thumb').alt = movie.title || movie.name || 'Poster';
+
+        const year = (movie.release_date || movie.first_air_date || '').substring(0, 4);
+        const rating = movie.vote_average ? movie.vote_average.toFixed(1) : '';
+        document.getElementById('movie-meta').textContent = [year, rating ? `⭐ ${rating}` : ''].filter(Boolean).join(' • ');
+
+        // Setup trailer
+        let trailerKey = null;
+        if (movie.videos && movie.videos.results) {
+          const trailer = movie.videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+          if (trailer) trailerKey = trailer.key;
+        }
+
+        const trailerBtn = document.getElementById('trailer-btn');
+        if (trailerKey) {
+          trailerBtn.onclick = () => window.open(`https://www.youtube.com/watch?v=${trailerKey}`, '_blank');
+        } else {
+          trailerBtn.style.display = 'none';
+        }
+
+        // Setup player (Vidsrc)
+        const tmdbId = movie.id;
+        if (tmdbId && String(tmdbId).match(/^\d+$/)) {
+          const baseEmbedUrl = `https://vidsrc.xyz/embed/movie?tmdb=${encodeURIComponent(tmdbId)}`;
+          const directEmbedUrl = baseEmbedUrl + '&autoplay=1';
+
+          const loadingEl = document.getElementById('loading');
+          const playerFrame = document.getElementById('player-frame');
+          const errorEl = document.getElementById('error');
+
+          loadingEl.style.display = 'block';
+          errorEl.style.display = 'none';
+          playerFrame.style.display = 'none';
+
+          playerFrame.onload = () => {
+            loadingEl.style.display = 'none';
+            playerFrame.style.display = 'block';
+          };
+
+          playerFrame.onerror = () => {
+            loadingEl.style.display = 'none';
+            playerFrame.style.display = 'none';
+            errorEl.style.display = 'block';
+            errorEl.innerHTML = `
+              <div>Không thể tải player trong trang (có thể bị chặn nhúng).</div>
+              <div class="fallback-actions">
+                <a class="link-btn" href="${directEmbedUrl}" target="_blank" rel="noopener noreferrer">↗ Mở player ở tab mới</a>
+                <a class="link-btn" href="javascript:location.reload()">⟳ Thử tải lại</a>
+              </div>
+            `;
+          };
+
+          // baseEmbedUrl đã có "?tmdb=..." nên phải nối thêm bằng "&"
+          playerFrame.src = directEmbedUrl;
+
+          // Fallback: nhiều site embed không bắn onload (hoặc bị chặn X-Frame-Options) => tránh kẹt loading mãi
+          setTimeout(() => {
+            if (loadingEl.style.display !== 'none') {
+              loadingEl.style.display = 'none';
+              playerFrame.style.display = 'block';
+              // Nếu vẫn là màn đen do bị chặn nhúng, cho người dùng link mở trực tiếp
+              errorEl.style.display = 'block';
+              errorEl.innerHTML = `
+                <div>Nếu player vẫn không hiển thị, hãy mở trực tiếp:</div>
+                <div class="fallback-actions">
+                  <a class="link-btn" href="${directEmbedUrl}" target="_blank" rel="noopener noreferrer">↗ Mở player ở tab mới</a>
+                </div>
+              `;
+            }
+          }, 3500);
+
+          // Add to history
+          jwtToken = getStoredToken();
+          if (jwtToken) {
+            fetch(apiUrl('/api/auth/history'), {
+              method: 'POST',
+              headers: getAuthHeaders(),
+              body: JSON.stringify({ movieId: String(tmdbId) })
+            }).catch(err => console.log('Không thể thêm vào lịch sử:', err));
+          }
+        } else {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('error').style.display = 'block';
+          document.getElementById('error').textContent = 'Không thể phát phim này';
+        }
+      })
+      .catch(error => {
+        console.error('Error loading movie:', error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Lỗi: ' + error.message;
+      });
+
+    // (Đã bỏ setupPlayerControls theo yêu cầu)
+    })();
+  </script>
+</body>
+</html>

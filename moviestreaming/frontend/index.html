@@ -19,6 +19,7 @@
     .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
     .navbar { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; }
     .nav-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .nav-top-right { display: inline-flex; align-items: center; gap: 10px; }
     .nav-bottom { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); }
     .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 1.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: #fff; }
     .brand span { color: #ffd363; }
@@ -26,13 +27,53 @@
     .menu li a { color: var(--muted); text-decoration: none; font-weight: 600; transition: color .2s; }
     .menu li a:hover { color: #fff; }
     .search-wrap { position: relative; flex: 1; max-width: 420px; }
-    .search-wrap input { width: 100%; padding: 10px 14px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.25); background: rgba(15, 20, 30, 0.85); color: #fff; }
+    .search-wrap input { width: 100%; padding: 10px 40px 10px 14px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.25); background: rgba(15, 20, 30, 0.85); color: #fff; }
+    .search-clear-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: none;
+      transition: all 0.2s;
+    }
+    .search-clear-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    /* Filter theo: phim lẻ/bộ + thể loại + chủ đề */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      margin-bottom: 10px;
+    }
+    .filter-item { display: flex; gap: 8px; align-items: center; }
+    .filter-item label { color: var(--muted); font-weight: 700; font-size: .9rem; }
+    .filter-item select {
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(15, 20, 30, 0.85);
+      color: #fff;
+      font-weight: 700;
+      max-width: 240px;
+    }
     .hero { position: relative; margin-top: 18px; border: 1px solid transparent; border-radius: 16px; overflow: hidden; background-size: cover; background-position: center; min-height: 520px; transition: background-image 0.5s ease;
       /* Giảm lớp phủ để ảnh bìa rõ hơn */
       background-image: linear-gradient(250deg, rgba(11, 16, 23, .55) 33%, rgba(11, 16, 23, .18) 50%, rgba(11, 16, 23, .72) 100%), url('img/bia.jpg');
     }
     .hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,16,23,.62) 20%, rgba(11,16,23,0.06) 65%, rgba(11,16,23,.70) 100%); pointer-events: none; }
-    .hero-content { position: relative; display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%; padding: 40px; z-index: 2; pointer-events: none; }
+    .hero-content { position: relative; display: flex; flex-direction: column; gap: 12px; justify-content: center; height: 100%; padding: 40px; z-index: 2; }
     .hero-title { font-size: clamp(2rem, 4vw, 4rem); font-weight: 800; line-height: 1.1; pointer-events: auto; }
     .hero-sub { color: var(--accent); font-size: 1.1rem; letter-spacing: .6px; pointer-events: auto; }
     .hero-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 10px; pointer-events: auto; }
@@ -53,6 +94,20 @@
     .btn { border: 0; border-radius: 999px; padding: 12px 24px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
     .btn-play { background: linear-gradient(90deg, #ffd363 0%, #ff8a3c 100%); color: #000; }
     .btn-like { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+    .btn-fav {
+      background: rgba(255, 120, 150, 0.16);
+      color: #fff;
+      border: 1px solid rgba(255, 120, 150, 0.5);
+      border-radius: 12px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-fav.active { background: #ff4561; border-color: #ff4561; color: #fff; }
     #member-btn {
       background: #fff;
       color: #111;
@@ -66,6 +121,16 @@
       transform: translateY(1px);
       box-shadow: 0 8px 18px rgba(0,0,0,0.16);
     }
+
+    .premium-top-btn{
+      background: linear-gradient(90deg, #ffd363 0%, #ff8a3c 100%);
+      color: #000;
+      box-shadow: 0 10px 24px rgba(255, 138, 60, 0.26);
+      border: 0;
+      padding: 8px 14px;
+      text-decoration: none;
+    }
+    .premium-top-btn:hover{ filter: brightness(1.02); }
 
     /* Menu tài khoản dạng dropdown */
     .member-wrap { position: relative; display: inline-flex; align-items: center; }
@@ -404,35 +469,50 @@
     <nav class="navbar">
       <div class="nav-top">
         <div class="brand"><span>Liqi</span> Phim</div>
-        <div class="member-wrap" id="member-wrap">
-          <button class="btn btn-like" id="member-btn" style="padding: 8px 14px;">Thành viên</button>
-          <div class="member-dropdown" id="member-dropdown" aria-hidden="true">
+        <div class="nav-top-right">
+          <a class="btn premium-top-btn" href="premium.html">★ Premium</a>
+          <div class="member-wrap" id="member-wrap">
+            <button class="btn btn-like" id="member-btn" style="padding: 8px 14px;">Thành viên</button>
+            <div class="member-dropdown" id="member-dropdown" aria-hidden="true">
             <div class="member-row">
               <div class="member-icon">👤</div>
               <div>
                 <div id="member-name">Xin chào</div>
                 <small id="member-email"></small>
+                <small id="member-role" style="display:block;margin-top:2px;color:rgba(0,0,0,0.55);font-weight:800;"></small>
               </div>
             </div>
+            <a class="member-action" href="favorites.html">
+              <span class="member-icon" style="width:30px;height:30px;border-radius:9px;">♥</span>
+              Yêu thích
+            </a>
+            <a class="member-action" href="premium.html">
+              <span class="member-icon" style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#e50914,#7c3aed);">★</span>
+              Premium
+            </a>
+            <a class="member-action" href="history.html">
+              <span class="member-icon" style="width:30px;height:30px;border-radius:9px;">🕘</span>
+              Lịch sử xem
+            </a>
             <button class="member-action" id="member-logout" type="button">
               <span class="member-icon" style="width:30px;height:30px;border-radius:9px;">⎋</span>
               Đăng xuất
             </button>
+          </div>
           </div>
         </div>
       </div>
 
       <div class="nav-bottom">
         <ul class="menu">
-          <li><a href="#">Chủ đề</a></li>
-          <li><a href="#">Thể loại</a></li>
-          <li><a href="#">Phim lẻ</a></li>
-          <li><a href="#">Phim bộ</a></li>
           <li><a href="#">Xem chung</a></li>
           <li><a href="#">Lịch chiếu</a></li>
           <li><a href="#">Reviews</a></li>
         </ul>
-        <div class="search-wrap"><input type="search" id="search-input" placeholder="Tìm kiếm phim, diễn viên..." /></div>
+        <div class="search-wrap">
+          <input type="search" id="search-input" placeholder="Tìm kiếm phim, diễn viên..." />
+          <button id="search-clear" class="search-clear-btn" title="Xóa tìm kiếm">✕</button>
+        </div>
       </div>
     </nav>
 
@@ -446,35 +526,65 @@
         <p class="hero-desc" id="hero-desc">Đang tải phim phổ biến...</p>
         <div class="hero-actions">
           <button class="btn btn-play" id="hero-play-btn">▶ Xem phim</button>
-          <button class="btn btn-like">❤ Thích</button>
+          <button class="btn btn-like" id="hero-fav-btn">❤ Thích</button>
         </div>
       </div>
       <div class="hero-thumbnails-wrap" id="hero-thumbnails-wrap"></div>
     </section>
 
-    <h2 class="section-title">Bạn đang quan tâm gì?</h2>
-    <div class="cards">
-      <article class="card vientuong"><h3>Viễn Tưởng</h3><small>Xem chủ đề →</small></article>
-      <article class="card thailan"><h3>Thái Lan</h3><small>Xem chủ đề →</small></article>
-      <article class="card sitcom"><h3>Sitcom</h3><small>Xem chủ đề →</small></article>
-      <article class="card chieurp"><h3>Chiếu Rạp</h3><small>Xem chủ đề →</small></article>
-      <article class="card kinhdi"><h3>Kinh Dị</h3><small>Xem chủ đề →</small></article>
-      <article class="card cotrang"><h3>Cổ Trang</h3><small>Xem chủ đề →</small></article>
-      <article class="card more"><h3>+2 chủ đề</h3><small>Xem chủ đề →</small></article>
+    <div class="filter-bar" aria-label="Bộ lọc">
+      <div class="filter-item">
+        <label for="filter-type">Phim</label>
+        <select id="filter-type">
+          <option value="all" selected>Cả hai</option>
+          <option value="movie">Phim lẻ</option>
+          <option value="tv">Phim bộ</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label for="filter-genre">Thể loại</label>
+        <select id="filter-genre">
+          <option value="all" selected>Tất cả</option>
+          <option value="vien-tuong">Viễn Tưởng</option>
+          <option value="kinh-di">Kinh Dị</option>
+          <option value="sitcom">Sitcom</option>
+          <option value="chieu-rap">Chiếu Rạp</option>
+          <option value="co-trang">Cổ Trang</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label for="filter-topic">Chủ đề</label>
+        <select id="filter-topic">
+          <option value="all" selected>Tất cả</option>
+          <option value="vien-tuong">Viễn Tưởng</option>
+          <option value="thai-lan">Thái Lan</option>
+          <option value="sitcom">Sitcom</option>
+          <option value="chieu-rap">Chiếu Rạp</option>
+          <option value="kinh-di">Kinh Dị</option>
+          <option value="co-trang">Cổ Trang</option>
+        </select>
+      </div>
     </div>
 
-    <h2 class="section-title" id="movies-section-title">Phim phổ biến</h2>
+    <h2 class="section-title" id="movies-section-title">Hot</h2>
     <div class="slider-container">
       <button class="slider-btn slider-btn-left" id="slider-prev" aria-label="Xem trước" hidden>&#8249;</button>
       <div class="movie-grid" id="movie-grid"></div>
       <button class="slider-btn slider-btn-right" id="slider-next" aria-label="Xem tiếp">&#8250;</button>
     </div>
 
-    <h2 class="section-title">Phim đánh giá cao &#11088;</h2>
+    <h2 class="section-title">Trending</h2>
     <div class="slider-container">
       <button class="slider-btn slider-btn-left" id="tr-slider-prev" aria-label="Xem trước" hidden>&#8249;</button>
       <div class="movie-grid" id="top-rated-grid"></div>
       <button class="slider-btn slider-btn-right" id="tr-slider-next" aria-label="Xem tiếp">&#8250;</button>
+    </div>
+
+    <h2 class="section-title">Phim mới</h2>
+    <div class="slider-container">
+      <button class="slider-btn slider-btn-left" id="np-slider-prev" aria-label="Xem trước" hidden>&#8249;</button>
+      <div class="movie-grid" id="now-playing-grid"></div>
+      <button class="slider-btn slider-btn-right" id="np-slider-next" aria-label="Xem tiếp">&#8250;</button>
     </div>
   </div>
 
@@ -540,6 +650,8 @@
 
   <script>
     (function () {
+      const API_BASE = window.API_BASE || 'http://localhost:8080';
+      function apiUrl(path) { return API_BASE + path; }
       const memberBtn = document.getElementById('member-btn');
       const backdrop = document.getElementById('auth-backdrop');
       const closeBtn = document.getElementById('auth-close');
@@ -549,6 +661,7 @@
       const memberEmail = document.getElementById('member-email');
       const memberLogout = document.getElementById('member-logout');
       const toastWrap = document.getElementById('toast-wrap');
+      const memberRole = document.getElementById('member-role');
       const tabs = document.querySelectorAll('.auth-tab');
       const forms = document.querySelectorAll('.auth-form');
       const loginForm = document.getElementById('login-form');
@@ -556,6 +669,32 @@
       const goRegister = document.getElementById('go-register');
       const goLogin = document.getElementById('go-login');
       let currentUser = null;
+      let jwtToken = null;
+
+      // Helper: Lấy JWT token từ localStorage
+      function getStoredToken() {
+        return localStorage.getItem('jwt_token');
+      }
+
+      // Helper: Lưu JWT token vào localStorage
+      function setStoredToken(token) {
+        if (token) {
+          localStorage.setItem('jwt_token', token);
+          jwtToken = token;
+        } else {
+          localStorage.removeItem('jwt_token');
+          jwtToken = null;
+        }
+      }
+
+      // Helper: Tạo headers với Authorization
+      function getAuthHeaders() {
+        const headers = { 'Content-Type': 'application/json' };
+        if (jwtToken) {
+          headers['Authorization'] = 'Bearer ' + jwtToken;
+        }
+        return headers;
+      }
 
       function openModal() {
         backdrop.style.display = 'flex';
@@ -598,10 +737,16 @@
           memberBtn.textContent = 'Xin chào, ' + name;
           if (memberName) memberName.textContent = 'Xin chào, ' + (currentUser.fullName || name);
           if (memberEmail) memberEmail.textContent = currentUser.email || '';
+          if (memberRole) {
+            const role = currentUser.role ? String(currentUser.role) : 'ROLE_USER';
+            const label = role === 'ROLE_ADMIN' ? 'Admin' : (role === 'ROLE_PREMIUM' ? 'Premium' : 'User');
+            memberRole.textContent = 'Gói: ' + label;
+          }
         } else {
           memberBtn.textContent = 'Thành viên';
           if (memberName) memberName.textContent = 'Xin chào';
           if (memberEmail) memberEmail.textContent = '';
+          if (memberRole) memberRole.textContent = '';
           setDropdownOpen(false);
         }
       }
@@ -629,14 +774,19 @@
       });
 
       memberLogout && memberLogout.addEventListener('click', function () {
-        fetch('/api/auth/logout', { method: 'POST' })
+        fetch(apiUrl('/api/auth/logout'), { 
+          method: 'POST',
+          headers: getAuthHeaders()
+        })
           .then(function () {
             currentUser = null;
+            setStoredToken(null);
             updateMemberButton();
             showToast('success', 'Thành công', 'Đã đăng xuất.');
           })
           .catch(function () {
             currentUser = null;
+            setStoredToken(null);
             updateMemberButton();
             showToast('error', 'Lỗi', 'Đăng xuất thất bại.');
           });
@@ -666,8 +816,11 @@
         tabs[0] && tabs[0].click();
       });
 
-      function setLoggedInUser(user) {
+      function setLoggedInUser(user, token) {
         currentUser = user;
+        if (token) {
+          setStoredToken(token);
+        }
         updateMemberButton();
         closeModal();
       }
@@ -681,7 +834,7 @@
           return;
         }
 
-        fetch('/api/auth/login', {
+        fetch(apiUrl('/api/auth/login'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -700,7 +853,7 @@
           })
           .then(function (data) {
             showToast('success', 'Đăng nhập thành công', 'Xin chào ' + (data.fullName || data.email) + '!');
-            setLoggedInUser(data);
+            setLoggedInUser(data, data.token);
           })
           .catch(function (err) {
             showToast('error', 'Đăng nhập thất bại', err.message);
@@ -727,7 +880,7 @@
           return;
         }
 
-        fetch('/api/auth/register', {
+        fetch(apiUrl('/api/auth/register'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -750,33 +903,60 @@
           })
           .then(function (data) {
             showToast('success', 'Đăng ký thành công', 'Chào mừng bạn đến với Liqi Phim!');
-            setLoggedInUser(data);
+            setLoggedInUser(data, data.token);
           })
           .catch(function (err) {
             showToast('error', 'Đăng ký thất bại', err.message);
           });
       });
 
-      // Khi tải trang, hỏi server xem đã đăng nhập chưa
-      fetch('/api/auth/me')
-        .then(function (res) {
-          if (!res.ok) {
-            throw new Error();
-          }
-          return res.json();
+      // Khi tải trang, kiểm tra token trong localStorage và xác thực
+      const storedToken = getStoredToken();
+      if (storedToken) {
+        jwtToken = storedToken;
+        fetch(apiUrl('/api/auth/me'), {
+          headers: getAuthHeaders()
         })
-        .then(function (data) {
-          currentUser = data;
-          updateMemberButton();
-        })
-        .catch(function () {
-          currentUser = null;
-          updateMemberButton();
-        });
+          .then(function (res) {
+            if (!res.ok) {
+              // Token không hợp lệ, xóa nó
+              setStoredToken(null);
+              throw new Error();
+            }
+            return res.json();
+          })
+          .then(function (data) {
+            currentUser = data;
+            updateMemberButton();
+          })
+          .catch(function () {
+            currentUser = null;
+            setStoredToken(null);
+            updateMemberButton();
+          });
+      } else {
+        // Không có token, kiểm tra session cũ (fallback)
+        fetch(apiUrl('/api/auth/me'))
+          .then(function (res) {
+            if (!res.ok) {
+              throw new Error();
+            }
+            return res.json();
+          })
+          .then(function (data) {
+            currentUser = data;
+            updateMemberButton();
+          })
+          .catch(function () {
+            currentUser = null;
+            updateMemberButton();
+          });
+      }
 
       // TMDB API - Phim phổ biến & tìm kiếm
       const { grid: movieGrid, updateBtns: updateSliderBtns } = makeSlider('movie-grid', 'slider-prev', 'slider-next');
       const { grid: topRatedGrid, updateBtns: updateTRBtns }  = makeSlider('top-rated-grid', 'tr-slider-prev', 'tr-slider-next');
+      const { grid: nowPlayingGrid, updateBtns: updateNPBtns } = makeSlider('now-playing-grid', 'np-slider-prev', 'np-slider-next');
       const heroSection = document.getElementById('hero-section');
       const heroSub = document.getElementById('hero-sub');
       const heroTitle = document.getElementById('hero-title');
@@ -784,6 +964,10 @@
       const heroDesc = document.getElementById('hero-desc');
       const moviesSectionTitle = document.getElementById('movies-section-title');
       const searchInput = document.getElementById('search-input');
+      const filterTypeSelect = document.getElementById('filter-type');
+      const filterGenreSelect = document.getElementById('filter-genre');
+      const filterTopicSelect = document.getElementById('filter-topic');
+      const searchClearBtn = document.getElementById('search-clear');
 
       // ---- Helper: tạo slider độc lập cho một grid bất kỳ ----
       function makeSlider(gridId, prevId, nextId) {
@@ -823,12 +1007,67 @@
           const year      = (m.release_date || m.first_air_date || '').substring(0, 4);
           const card      = document.createElement('article');
           card.className  = 'movie-card';
+
+          const imgFrag = posterUrl ? '<img src="' + posterUrl + '" alt="' + title + '" loading="lazy" />'
+            : '<div class="movie-placeholder">🎬</div>';
+
+          const isFav = currentUser && currentUser.favoriteMovieIds && currentUser.favoriteMovieIds.indexOf(String(m.id)) >= 0;
+          const favLabel = isFav ? '♥ Đã thích' : '♡ Thích';
+
           card.innerHTML  =
-            (posterUrl ? '<img src="' + posterUrl + '" alt="' + title + '" loading="lazy" />' : '<div class="movie-placeholder">🎬</div>') +
+            imgFrag +
             '<div class="movie-info">' +
               '<div class="movie-title">' + title + '</div>' +
               '<div class="movie-rating">★ ' + rating + (year ? ' · ' + year : '') + '</div>' +
+              '<button class="btn-fav' + (isFav ? ' active' : '') + '" type="button">' + favLabel + '</button>' +
             '</div>';
+
+          const favBtn = card.querySelector('.btn-fav');
+          if (favBtn) {
+            favBtn.addEventListener('click', function (evt) {
+              evt.stopPropagation();
+              if (!currentUser || !currentUser.id) {
+                showToast('error', 'Cần đăng nhập', 'Vui lòng đăng nhập để lưu phim yêu thích.');
+                openModal();
+                return;
+              }
+
+              if (favBtn.classList.contains('active')) {
+                fetch(apiUrl('/api/auth/favorites/' + encodeURIComponent(m.id)), { 
+                  method: 'DELETE',
+                  headers: getAuthHeaders()
+                })
+                  .then(function (res) {
+                    if (!res.ok) throw new Error('Xoá yêu thích thất bại');
+                    return res.json();
+                  }).then(function (data) {
+                    favBtn.classList.remove('active');
+                    favBtn.textContent = '♡ Thích';
+                    currentUser.favoriteMovieIds = data.favorites || currentUser.favoriteMovieIds;
+                    showToast('success', 'Đã xoá', 'Đã xóa phim khỏi danh sách yêu thích.');
+                  }).catch(function () {
+                    showToast('error', 'Lỗi', 'Không thể xoá yêu thích.');
+                  });
+              } else {
+                fetch(apiUrl('/api/auth/favorites'), {
+                  method: 'POST',
+                  headers: getAuthHeaders(),
+                  body: JSON.stringify({ movieId: String(m.id) })
+                }).then(function (res) {
+                  if (!res.ok) throw new Error('Thêm yêu thích thất bại');
+                  return res.json();
+                }).then(function (data) {
+                  favBtn.classList.add('active');
+                  favBtn.textContent = '♥ Đã thích';
+                  currentUser.favoriteMovieIds = data.favorites || currentUser.favoriteMovieIds;
+                  showToast('success', 'Đã thêm', 'Đã thêm phim vào danh sách yêu thích.');
+                }).catch(function () {
+                  showToast('error', 'Lỗi', 'Không thể thêm yêu thích.');
+                });
+              }
+            });
+          }
+
           card.style.cursor = 'pointer';
           card.addEventListener('click', function() {
             window.location.href = 'movie.html?id=' + m.id;
@@ -842,6 +1081,16 @@
       let heroMoviesList = [];
       let currentHeroIdx = 0;
       let heroAutoPlayInterval = null;
+
+      function isPremiumUser() {
+        const role = currentUser && currentUser.role ? String(currentUser.role) : '';
+        return role === 'ROLE_PREMIUM' || role === 'ROLE_ADMIN';
+      }
+
+      function goPremium(nextUrl) {
+        const next = nextUrl ? ('?next=' + encodeURIComponent(nextUrl)) : '';
+        window.location.href = 'premium.html' + next;
+      }
 
       function updateHero(movie, index) {
         if (!movie || !heroSection) return;
@@ -865,7 +1114,55 @@
         
         const playBtn = document.getElementById('hero-play-btn');
         if (playBtn) {
-          playBtn.onclick = function() { window.location.href = 'movie.html?id=' + movie.id; };
+          playBtn.onclick = function() {
+            if (!currentUser || !currentUser.id) {
+              showToast('error', 'Cần đăng nhập', 'Vui lòng đăng nhập để xem phim.');
+              openModal();
+              return;
+            }
+            if (!isPremiumUser()) {
+              goPremium('movie.html?id=' + movie.id);
+              return;
+            }
+            window.location.href = 'movie.html?id=' + movie.id;
+          };
+        }
+
+        const heroFavBtn = document.getElementById('hero-fav-btn');
+        if (heroFavBtn) {
+          heroFavBtn.onclick = function () {
+            if (!currentUser || !currentUser.id) {
+              showToast('error', 'Cần đăng nhập', 'Vui lòng đăng nhập để lưu phim yêu thích.');
+              openModal();
+              return;
+            }
+
+            const isHeroFav = currentUser && currentUser.favoriteMovieIds && currentUser.favoriteMovieIds.indexOf(String(movie.id)) >= 0;
+            heroFavBtn.textContent = isHeroFav ? '♥ Đã thích' : '❤ Thích';
+
+            if (isHeroFav) {
+              fetch(apiUrl('/api/auth/favorites/' + encodeURIComponent(movie.id)), { method: 'DELETE', headers: getAuthHeaders() })
+                .then(function (res) { if (!res.ok) throw new Error('Xoá thất bại'); return res.json(); })
+                .then(function (data) {
+                  currentUser.favoriteMovieIds = data.favorites || currentUser.favoriteMovieIds;
+                  heroFavBtn.textContent = '❤ Thích';
+                  showToast('success', 'Đã xoá', 'Đã xoá phim yêu thích.');
+                }).catch(function () { showToast('error', 'Lỗi', 'Không thể xoá yêu thích.'); });
+            } else {
+              fetch(apiUrl('/api/auth/favorites'), {
+                method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ movieId: String(movie.id) })
+              }).then(function (res) { if (!res.ok) throw new Error('Thêm thất bại'); return res.json(); })
+                .then(function (data) {
+                  currentUser.favoriteMovieIds = data.favorites || currentUser.favoriteMovieIds;
+                  heroFavBtn.textContent = '♥ Đã thích';
+                  showToast('success', 'Đã thêm', 'Đã thêm phim yêu thích.');
+                }).catch(function () { showToast('error', 'Lỗi', 'Không thể thêm yêu thích.'); });
+            }
+          };
+
+          // Set initial label after binding
+          const favorited = currentUser && currentUser.favoriteMovieIds && currentUser.favoriteMovieIds.indexOf(String(movie.id)) >= 0;
+          heroFavBtn.textContent = favorited ? '♥ Đã thích' : '❤ Thích';
         }
 
         const thumbs = document.querySelectorAll('.hero-thumb');
@@ -912,17 +1209,38 @@
       }
 
       function loadMovies(query) {
-        const url = (query && query.trim())
-          ? '/api/movies/search?q=' + encodeURIComponent(query.trim()) + '&page=1'
-          : '/api/movies/popular?page=1';
+        const qTrim = query && query.trim() ? query.trim() : '';
+        const typeVal = filterTypeSelect ? filterTypeSelect.value : 'all';
+        const genreVal = filterGenreSelect ? filterGenreSelect.value : 'all';
+        const topicVal = filterTopicSelect ? filterTopicSelect.value : 'all';
+
+        let url = '/api/movies/browse?page=1&type=' + encodeURIComponent(typeVal);
+        if (qTrim) {
+          url += '&q=' + encodeURIComponent(qTrim);
+        } else {
+          if (genreVal && genreVal !== 'all') url += '&genre=' + encodeURIComponent(genreVal);
+          if (topicVal && topicVal !== 'all') url += '&topic=' + encodeURIComponent(topicVal);
+        }
+
+        // Ẩn/hiện hero section dựa trên việc có tìm kiếm hay không
+        if (heroSection) {
+          if (qTrim) {
+            heroSection.style.display = 'none';
+          } else {
+            heroSection.style.display = 'block';
+          }
+        }
+
         if (moviesSectionTitle) {
-          moviesSectionTitle.textContent = query && query.trim() ? 'Kết quả tìm kiếm' : 'Phim phổ biến';
+          if (qTrim) moviesSectionTitle.textContent = 'Kết quả tìm kiếm cho "' + qTrim + '"';
+          else if ((genreVal && genreVal !== 'all') || (topicVal && topicVal !== 'all')) moviesSectionTitle.textContent = 'Kết quả lọc';
+          else moviesSectionTitle.textContent = 'Hot';
         }
         movieGrid && (movieGrid.innerHTML = '<p style="grid-column:1/-1;color:var(--muted);">Đang tải...</p>');
-        fetch(url)
+        fetch(apiUrl(url))
           .then(function (res) { return res.json(); })
           .then(function (movies) {
-            renderMovies(movies);
+            renderMovies(Array.isArray(movies) ? movies : []);
             if (movies && movies.length > 0 && !query) {
               heroMoviesList = movies;
               currentHeroIdx = 0;
@@ -937,25 +1255,105 @@
             }
           })
           .catch(function () {
-            if (movieGrid) movieGrid.innerHTML = '<p style="grid-column:1/-1;color:var(--accent2);">Không thể tải phim. Kiểm tra kết nối hoặc API key.</p>';
+            // Fallback: dùng endpoint cũ để luôn hiển thị danh sách
+            fetch(apiUrl('/api/movies/popular?page=1'))
+              .then(function (r) { return r.json(); })
+              .then(function (fallbackMovies) {
+                renderMovies(Array.isArray(fallbackMovies) ? fallbackMovies : []);
+                if (Array.isArray(fallbackMovies) && fallbackMovies.length > 0 && !query) {
+                  heroMoviesList = fallbackMovies;
+                  currentHeroIdx = 0;
+                  renderHeroThumbnails();
+                  updateHero(fallbackMovies[0], 0);
+                  resetHeroInterval();
+                }
+              })
+              .catch(function () {
+                if (movieGrid) movieGrid.innerHTML = '<p style="grid-column:1/-1;color:var(--accent2);">Không thể tải phim. Kiểm tra kết nối hoặc API key.</p>';
+              });
           });
       }
 
       loadMovies();
 
-      // Load slider Phim đánh giá cao
-      topRatedGrid && (topRatedGrid.innerHTML = '<p style="padding:12px;color:var(--muted);">Đang tải...</p>');
-      fetch('/api/movies/top-rated?page=1')
-        .then(function (res) { return res.json(); })
-        .then(function (movies) { buildCards(movies, topRatedGrid, updateTRBtns); })
-        .catch(function () {
-          if (topRatedGrid) topRatedGrid.innerHTML = '<p style="padding:12px;color:var(--accent2);">Không thể tải phim.</p>';
+      function currentType() {
+        return filterTypeSelect ? filterTypeSelect.value : 'all';
+      }
+
+      function reloadTrending() {
+        topRatedGrid && (topRatedGrid.innerHTML = '<p style="padding:12px;color:var(--muted);">Đang tải...</p>');
+        fetch(apiUrl('/api/movies/trending?page=1&type=' + encodeURIComponent(currentType())))
+          .then(function (res) { return res.json(); })
+          .then(function (movies) { buildCards(Array.isArray(movies) ? movies : [], topRatedGrid, updateTRBtns); })
+          .catch(function () {
+            // Fallback: top-rated (endpoint cũ)
+            fetch(apiUrl('/api/movies/top-rated?page=1'))
+              .then(function (r) { return r.json(); })
+              .then(function (fallbackMovies) {
+                buildCards(Array.isArray(fallbackMovies) ? fallbackMovies : [], topRatedGrid, updateTRBtns);
+              })
+              .catch(function () {
+                if (topRatedGrid) topRatedGrid.innerHTML = '<p style="padding:12px;color:var(--accent2);">Không thể tải phim.</p>';
+              });
+          });
+      }
+
+      function reloadNowPlaying() {
+        nowPlayingGrid && (nowPlayingGrid.innerHTML = '<p style="padding:12px;color:var(--muted);">Đang tải...</p>');
+        fetch(apiUrl('/api/movies/now-playing?page=1&type=' + encodeURIComponent(currentType())))
+          .then(function (res) { return res.json(); })
+          .then(function (movies) { buildCards(Array.isArray(movies) ? movies : [], nowPlayingGrid, updateNPBtns); })
+          .catch(function () {
+            // Fallback: popular (endpoint cũ)
+            fetch(apiUrl('/api/movies/popular?page=1'))
+              .then(function (r) { return r.json(); })
+              .then(function (fallbackMovies) {
+                buildCards(Array.isArray(fallbackMovies) ? fallbackMovies : [], nowPlayingGrid, updateNPBtns);
+              })
+              .catch(function () {
+                if (nowPlayingGrid) nowPlayingGrid.innerHTML = '<p style="padding:12px;color:var(--accent2);">Không thể tải phim.</p>';
+              });
+          });
+      }
+
+      reloadTrending();
+      reloadNowPlaying();
+
+      filterTypeSelect && filterTypeSelect.addEventListener('change', function () {
+        loadMovies('');
+        reloadTrending();
+        reloadNowPlaying();
+      });
+      filterGenreSelect && filterGenreSelect.addEventListener('change', function () {
+        loadMovies('');
+        reloadTrending();
+        reloadNowPlaying();
+      });
+      filterTopicSelect && filterTopicSelect.addEventListener('change', function () {
+        loadMovies('');
+        reloadTrending();
+        reloadNowPlaying();
+      });
+
+      // Click vào các card "chủ đề" để set filter nhanh
+      document.querySelectorAll('.cards .card[data-topic]').forEach(function (card) {
+        card.addEventListener('click', function () {
+          const topic = card.getAttribute('data-topic') || 'all';
+          const genre = card.getAttribute('data-genre') || 'all';
+          if (filterTopicSelect) filterTopicSelect.value = topic;
+          if (filterGenreSelect) filterGenreSelect.value = genre;
+          loadMovies('');
         });
+      });
 
       var searchTimeout;
       searchInput && searchInput.addEventListener('input', function () {
         clearTimeout(searchTimeout);
         var q = searchInput.value.trim();
+        // Hiển thị/ẩn nút clear
+        if (searchClearBtn) {
+          searchClearBtn.style.display = q ? 'block' : 'none';
+        }
         searchTimeout = setTimeout(function () {
           loadMovies(q);
         }, 400);
@@ -965,6 +1363,13 @@
           clearTimeout(searchTimeout);
           loadMovies(searchInput.value.trim());
         }
+      });
+
+      // Xử lý nút clear search
+      searchClearBtn && searchClearBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        searchClearBtn.style.display = 'none';
+        loadMovies('');
       });
     })();
   </script>

@@ -6,9 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
-/**
- * Entity đại diện cho một bộ phim do Admin quản lý trong hệ thống (MongoDB).
- */
+
 @Document(collection = "movies")
 public class Movie {
 

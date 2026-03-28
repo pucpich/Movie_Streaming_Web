@@ -6,16 +6,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
-/**
- * AdminGuard – Helper dùng trong Controller để kiểm tra quyền Admin.
- *
- * Cách sử dụng trong Controller:
- * <pre>
- *   ResponseEntity<?> guard = AdminGuard.require(request);
- *   if (guard != null) return guard; // Trả về 401/403 nếu không hợp lệ
- *   // ... logic cho Admin ...
- * </pre>
- */
 public final class AdminGuard {
 
     private AdminGuard() {} // Utility class, không được khởi tạo
@@ -47,9 +37,6 @@ public final class AdminGuard {
         return null;
     }
 
-    /**
-     * Tương tự, nhưng trả về boolean (dùng trong các trường hợp đơn giản hơn).
-     */
     public static boolean isAdmin(HttpServletRequest request) {
         return User.Role.ROLE_ADMIN.name().equals(request.getAttribute("jwt_role"));
     }

@@ -5,10 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/**
- * Repository cho Movie entity (MongoDB).
- * Spring Data MongoDB sẽ thiết lập các method truy vấn.
- */
+
 @Repository
 public interface MovieRepository extends MongoRepository<Movie, String> {
 

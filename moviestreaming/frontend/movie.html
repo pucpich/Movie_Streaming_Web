@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chi tiết phim - Liqi Phim</title>
+  <style>
+    :root {
+      --bg: #0b1017;
+      --bg-light: #151c26;
+      --text: #f5f6fa;
+      --muted: #b1b9c7;
+      --accent: #ffd363;
+      --accent2: #ff4561;
+      --card: rgba(20, 30, 45, 0.85);
+      --border: rgba(255, 255, 255, 0.13);
+      --glass: rgba(15, 20, 30, 0.65);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* --- Navbar --- */
+    .header-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, rgba(11, 16, 23, 0.9) 0%, rgba(11, 16, 23, 0) 100%);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+    }
+
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .brand span { color: var(--accent); }
+    .back-btn { font-weight: 600; font-size: 1.1rem; transition: color 0.2s; }
+    .back-btn:hover { color: var(--accent); }
+
+    .movie-banner {
+      position: relative;
+      width: 100%;
+      height: 70vh; /* Banner takes up 70% of viewport */
+      min-height: 500px;
+      background-size: cover;
+      background-position: center 20%;
+      background-color: var(--bg-light);
+    }
+    
+    .movie-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, var(--bg) 0%, rgba(11, 16, 23, 0.7) 40%, rgba(11, 16, 23, 0.3) 100%);
+    }
+
+    .movie-container {
+      position: relative;
+      max-width: 1200px;
+      margin: -250px auto 0 auto; /* Đẩy nội dung đè lên banner */
+      padding: 0 20px 40px 20px;
+      display: flex;
+      gap: 40px;
+      z-index: 10;
+    }
+
+    .movie-poster-wrap {
+      flex: 0 0 300px;
+      margin-top: 20px;
+    }
+    .poster-img {
+      width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--bg-light);
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+
+    .movie-info {
+      flex: 1;
+      padding-top: clamp(90px, 12vh, 160px); /* xích lên cao hơn, vẫn responsive */
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .title { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; line-height: 1.1; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .tagline { color: var(--accent); font-size: 1.25rem; font-style: italic; font-weight: 500; }
+    
+    .meta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 1.05rem; }
+    .rating-box {
+      background: var(--accent);
+      color: #000;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+    }
+    .meta span { color: var(--muted); }
+    
+    .genre-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .genre-tag {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      backdrop-filter: blur(4px);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .overview {
+      margin-top: 10px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #dde3ee;
+      max-width: 850px;
+    }
+
+    /* --- Nút bấm --- */
+    .actions { display: flex; gap: 16px; margin-top: 24px; }
+
+    .player-wrap{
+      position: relative;
+      width: 100%;
+      height: 360px;
+      margin-top: 18px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .player-controls{
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px 14px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.18) 100%);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      z-index: 5;
+      color: #fff;
+      backdrop-filter: blur(4px);
+    }
+    .player-controls.hidden{ display: none; }
+    #seekbar{
+      width: 100%;
+      accent-color: #ffd363;
+    }
+    #seek-time{
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.95);
+      min-width: 120px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .btn {
+      padding: 16px 36px;
+      border-radius: 999px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover { transform: translateY(-3px); }
+    
+    .btn-play {
+      background: linear-gradient(90deg, #ffd363 0%, #ff8a3c 100%);
+      color: #000;
+      box-shadow: 0 10px 20px rgba(255, 138, 60, 0.3);
+    }
+    .btn-trailer {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      backdrop-filter: blur(8px);
+    }
+    .btn-trailer:hover { background: rgba(255,255,255,0.2); }
+
+    .trailer-section {
+      margin-top: 16px;
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      padding-left: 12px;
+      border-left: 5px solid var(--accent);
+    }
+    .cast-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 40px;
+    }
+    .cast-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .cast-btn {
+      position: absolute;
+      top: calc(50% - 10px); /* Adjust for padding-bottom in grid */
+      transform: translateY(-50%);
+      background: rgba(15, 20, 30, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 1.2rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+    .cast-btn:hover {
+      background: var(--accent);
+      color: #000;
+      transform: translateY(-50%) scale(1.1);
+    }
+    .cast-btn-left {
+      left: -22px;
+    }
+    .cast-btn-right {
+      right: -22px;
+    }
+    .cast-grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 20px;
+      scroll-behavior: smooth;
+      flex: 1;
+    }
+    /* Ẩn thanh cuộn */
+    .cast-grid::-webkit-scrollbar { display: none; }
+    .cast-grid { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .cast-card {
+      flex: 0 0 140px;
+      background: var(--bg-light);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .cast-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #222;
+    }
+    .cast-info { padding: 10px; text-align: center; }
+    .cast-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+    .cast-role { font-size: 0.8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* --- Loading Spinner --- */
+    .loading-overlay {
+      position: fixed; inset: 0; background: var(--bg); display: flex;
+      align-items: center; justify-content: center; z-index: 2000;
+    }
+    .spinner {
+      width: 50px; height: 50px; border: 4px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .movie-container {
+        flex-direction: column;
+        align-items: center;
+        margin-top: -100px;
+      }
+      .movie-info { padding-top: 20px; align-items: center; text-align: center; }
+      .genre-list { justify-content: center; }
+      .actions { flex-direction: column; width: 100%; }
+      .btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loader" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Navbar -->
+  <header class="header-bar">
+    <a href="index.html" class="brand">Liqi <span>Phim</span></a>
+    <a href="index.html" class="back-btn">← Quay lại trang chủ</a>
+  </header>
+
+  <!-- Content (Rendered by JS) -->
+  <div id="app" style="display:none;">
+    
+    <div class="movie-banner" id="banner"></div>
+
+    <main class="movie-container">
+      <div class="movie-poster-wrap">
+        <img id="poster" class="poster-img" src="" alt="Poster" />
+      </div>
+
+      <div class="movie-info">
+        <h1 class="title" id="title">Đang tải...</h1>
+        <div class="tagline" id="tagline"></div>
+
+        <div class="meta">
+          <div class="rating-box">⭐ <span id="rating" style="color:#000;"></span></div>
+          <span id="year"></span>
+          <span>•</span>
+          <span id="runtime"></span>
+          <span>•</span>
+          <span class="genre-list" id="genres"></span>
+        </div>
+
+        <p class="overview" id="overview"></p>
+
+        <div class="actions">
+          <button class="btn btn-play">▶ Xem Phim Ngay</button>
+          <div class="trailer-section" style="margin-top: 16px;">
+            <button class="btn btn-trailer" id="trailer-btn">📺 Xem Trailer</button>
+          </div>
+          <button class="btn btn-trailer" id="fullscreen-btn" title="Toàn màn hình" style="padding:16px 22px;">⛶ Fullscreen</button>
+        </div>
+
+        <div class="player-wrap" id="player-wrap" style="display:none;">
+          <iframe
+            id="player-frame"
+            title="Movie Player"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+            src=""
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+
+          <div class="player-controls hidden" id="player-controls">
+            <input id="seekbar" type="range" min="0" max="100" value="0" step="0.1" />
+            <div id="seek-time">0%</div>
+          </div>
+        </div>
+
+        <section class="review-section" id="review-section" style="margin-top: 24px;">
+          <h3 class="section-title" style="margin-top: 0;">Đánh giá & bình luận</h3>
+
+          <div id="review-summary" style="margin-bottom: 10px;font-size:0.95rem;color:var(--muted);"></div>
+
+          <div id="my-review" style="margin-bottom: 16px;">
+            <label style="display:block;margin-bottom:4px;font-weight:700;">Chọn sao của bạn:</label>
+            <div id="star-picker" style="display:flex;gap:4px;align-items:center;margin-bottom:8px;">
+              <!-- generated 10 star buttons for 0.5 steps -->
+            </div>
+            <div id="rating-value-label" style="color:var(--muted);font-size:0.9rem;margin-bottom:8px;">Bạn đã chọn: 0.0</div>
+            <input id="rating-input" type="hidden" value="0" />
+
+            <label for="comment-input" style="display:block;margin:10px 0 4px;font-weight:700;">Bình luận của bạn:</label>
+            <textarea id="comment-input" rows="3" style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:var(--bg-light);color:var(--text);"></textarea>
+
+            <button id="submit-review-btn" class="btn btn-review" style="margin-top:10px;padding:8px 14px;font-size:0.9rem;">Gửi đánh giá</button>
+            <div id="review-status" style="margin-top:8px;color:#ffd363;font-size:0.9rem;"></div>
+          </div>
+
+          <div id="review-list" style="max-height:240px;overflow:auto;">
+            <!-- Reviews sẽ hiển thị ở đây -->
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Diễn viên -->
+    <section class="cast-container">
+      <h2 class="section-title">Diễn viên nổi bật</h2>
+      <div class="cast-wrapper">
+        <button class="cast-btn cast-btn-left" id="cast-prev" aria-label="Previous cast">&#10094;</button>
+        <div class="cast-grid" id="cast-list">
+          <!-- Cast cards... -->
+        </div>
+        <button class="cast-btn cast-btn-right" id="cast-next" aria-label="Next cast">&#10095;</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const API_BASE = window.API_BASE || 'http://localhost:8080';
+    function apiUrl(path){ return API_BASE + path; }
+    let jwtToken = null;
+
+    // Helper: Lấy JWT token từ localStorage
+    function getStoredToken() {
+      return localStorage.getItem('jwt_token');
+    }
+
+    // Helper: Tạo headers với Authorization
+    function getAuthHeaders() {
+      const headers = { 'Content-Type': 'application/json' };
+      if (jwtToken) {
+        headers['Authorization'] = 'Bearer ' + jwtToken;
+      }
+      return headers;
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const movieId = urlParams.get('id');
+
+      if (!movieId) {
+        alert('Không tìm thấy ID phim.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      fetch(apiUrl(`/api/movies/${movieId}`))
+        .then(res => res.json())
+        .then(movie => {
+          document.getElementById('loader').style.display = 'none';
+          document.getElementById('app').style.display = 'block';
+          renderMovie(movie);
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Có lỗi xảy ra khi tải phim.');
+          window.location.href = 'index.html';
+        });
+    });
+
+    function renderMovie(m) {
+      document.title = (m.title || m.name) + ' - Liqi Phim';
+
+      // Banner & Poster
+      const bannerUrl = m.backdrop_url || m.poster_url || '';
+      if (bannerUrl) {
+        document.getElementById('banner').style.backgroundImage = `url('${bannerUrl}')`;
+      }
+      
+      const defaultPoster = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" fill="%23222"><rect width="100%" height="100%"/></svg>';
+      document.getElementById('poster').src = m.poster_url || defaultPoster;
+
+      // Text Info
+      document.getElementById('title').textContent = m.title || m.name || 'Đang cập nhật';
+      document.getElementById('tagline').textContent = m.tagline ? `"${m.tagline}"` : '';
+      document.getElementById('overview').textContent = m.overview || 'Chưa có thông tin tóm tắt phim.';
+      
+      document.getElementById('rating').textContent = m.vote_average ? m.vote_average.toFixed(1) : '-';
+      document.getElementById('year').textContent = m.release_date ? m.release_date.substring(0, 4) : '';
+      document.getElementById('runtime').textContent = m.runtime ? `${m.runtime} phút` : 'Đang cập nhật';
+
+      // Thể loại (Genres)
+      const genresDiv = document.getElementById('genres');
+      if (m.genres && m.genres.length > 0) {
+        genresDiv.innerHTML = m.genres.map(g => `<div class="genre-tag">${g.name}</div>`).join('');
+      } else {
+        document.getElementById('year').nextElementSibling.style.display = 'none'; // Ẩn bullet
+      }
+
+      // Diễn viên (Credits)
+      const castDiv = document.getElementById('cast-list');
+      if (m.credits && m.credits.cast && m.credits.cast.length > 0) {
+        const topCast = m.credits.cast.slice(0, 15);
+        castDiv.innerHTML = topCast.map(actor => {
+          const profileImg = actor.profile_path 
+            ? `https://image.tmdb.org/t/p/w200${actor.profile_path}`
+            : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
+            
+          return `
+            <div class="cast-card">
+              <img src="${profileImg}" loading="lazy" class="cast-img" alt="${actor.name}">
+              <div class="cast-info">
+                <div class="cast-name">${actor.name}</div>
+                <div class="cast-role">${actor.character}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        castDiv.innerHTML = '<p style="color:var(--muted)">Không có thông tin diễn viên.</p>';
+      }
+
+      // Xử lý Trailer Youtube (nếu có)
+      const trailerBtn = document.getElementById('trailer-btn');
+      let trailerKey = null;
+      if (m.videos && m.videos.results) {
+        const trailer = m.videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+        if (trailer) trailerKey = trailer.key;
+      }
+
+      if (trailerKey) {
+        trailerBtn.onclick = () => window.open(`https://www.youtube.com/watch?v=${trailerKey}`, '_blank');
+      } else {
+        trailerBtn.style.display = 'none';
+      }
+
+      // Vidsrc embed player (bật khi bấm "Xem Phim Ngay")
+      const playBtn = document.querySelector('.btn-play');
+      const playerWrap = document.getElementById('player-wrap');
+      const playerFrame = document.getElementById('player-frame');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+      const playerControls = document.getElementById('player-controls');
+      const seekbar = document.getElementById('seekbar');
+      const seekTime = document.getElementById('seek-time');
+      if (playBtn && playerWrap && playerFrame) {
+        const tmdbId = m && m.id != null ? m.id : null;
+        const canPlay = tmdbId != null && String(tmdbId).match(/^\d+$/);
+
+        let durationSeconds = null;
+        let currentSeconds = null;
+        let baseEmbedUrl = null;
+
+        function formatTime(seconds){
+          if (seconds == null || isNaN(seconds)) return '--:--';
+          seconds = Math.max(0, Math.floor(seconds));
+          const m = Math.floor(seconds / 60);
+          const s = seconds % 60;
+          return (m < 10 ? '0' + m : '' + m) + ':' + (s < 10 ? '0' + s : '' + s);
+        }
+
+        function setSeekLabel(percent){
+          if (!seekTime) return;
+          if (durationSeconds != null && currentSeconds != null && durationSeconds > 0) {
+            seekTime.textContent = formatTime(currentSeconds) + ' / ' + formatTime(durationSeconds);
+            return;
+          }
+          seekTime.textContent = (Math.round(percent * 10) / 10) + '%';
+        }
+
+        function commitSeek(percent){
+          if (!baseEmbedUrl) return;
+          const p = Math.max(0, Math.min(1, percent));
+          const seconds = durationSeconds != null && durationSeconds > 0 ? (durationSeconds * p) : (60 * 60 * p); // fallback: 60 phút
+          const start = Math.max(0, Math.floor(seconds));
+          const sep = baseEmbedUrl.indexOf('?') >= 0 ? '&' : '?';
+          const seekUrl = baseEmbedUrl
+            + sep + 'autoplay=1'
+            + '&startAt=' + encodeURIComponent(String(start))
+            + '&start=' + encodeURIComponent(String(start));
+
+          // Reload iframe để áp seek (tùy vidsrc hỗ trợ startAt/start)
+          playerFrame.src = seekUrl;
+          currentSeconds = null;
+          setSeekLabel(p * 100);
+        }
+
+        playBtn.onclick = () => {
+          if (!canPlay) {
+            alert('Không hỗ trợ phát video cho dữ liệu phim này.');
+            return;
+          }
+
+          // Chỉ premium/admin mới được xem phim
+          jwtToken = getStoredToken();
+          if (!jwtToken) {
+            alert('Bạn cần đăng nhập Premium để xem phim.');
+            window.location.href = 'premium.html?next=' + encodeURIComponent('watch.html?id=' + tmdbId);
+            return;
+          }
+
+          fetch(apiUrl('/api/auth/me'), { headers: getAuthHeaders() })
+            .then(res => res.ok ? res.json() : Promise.reject(res))
+            .then(me => {
+              const role = me && me.role ? String(me.role) : '';
+              const ok = role === 'ROLE_PREMIUM' || role === 'ROLE_ADMIN';
+              if (!ok) {
+                window.location.href = 'premium.html?next=' + encodeURIComponent('watch.html?id=' + tmdbId);
+                return;
+              }
+
+              // Thêm phim vào lịch sử xem
+              addToHistory(tmdbId);
+
+              // Chuyển sang trang xem phim
+              window.location.href = 'watch.html?id=' + tmdbId;
+            })
+            .catch(() => {
+              window.location.href = 'premium.html?next=' + encodeURIComponent('watch.html?id=' + tmdbId);
+            });
+        };
+
+        // Best-effort: nếu iframe gửi postMessage với currentTime/duration
+        if (!window.__vidsrc_seek_listener_added) {
+          window.__vidsrc_seek_listener_added = true;
+          window.addEventListener('message', function (event) {
+            if (!playerFrame || event.source !== playerFrame.contentWindow) return;
+            const data = event.data;
+            if (!data || typeof data !== 'object') return;
+
+            const maybeDuration = data.duration != null ? Number(data.duration) : null;
+            const maybeCurrent = data.currentTime != null ? Number(data.currentTime) : null;
+            if (maybeDuration != null && !isNaN(maybeDuration) && maybeDuration > 0) durationSeconds = maybeDuration;
+            if (maybeCurrent != null && !isNaN(maybeCurrent) && maybeCurrent >= 0) currentSeconds = maybeCurrent;
+
+            if (durationSeconds != null && currentSeconds != null && durationSeconds > 0) {
+              const percent = (currentSeconds / durationSeconds) * 100;
+              if (seekbar) seekbar.value = Math.max(0, Math.min(100, percent));
+              setSeekLabel(percent);
+            }
+          });
+        }
+
+        // Seek bar commit (khi thả chuột)
+        if (seekbar) {
+          seekbar.addEventListener('change', function () {
+            const percent = Number(seekbar.value) / 100;
+            commitSeek(percent);
+          });
+        }
+
+        if (fullscreenBtn) {
+          fullscreenBtn.onclick = () => {
+            if (!playerFrame || !playerFrame.src) return;
+            try {
+              // requestFullscreen có thể bị chặn tùy trình duyệt khi iframe cross-origin
+              const el = playerFrame;
+              if (el.requestFullscreen) el.requestFullscreen();
+              else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+              else alert('Trình duyệt không hỗ trợ fullscreen cho player này.');
+            } catch (e) {
+              alert('Không thể mở fullscreen. Vui lòng dùng nút fullscreen trực tiếp trong player.');
+            }
+          };
+        }
+      }
+
+      // Khởi tạo tính năng đánh giá / bình luận
+      initializeReviewControls(m.id);
+
+      // Xử lý mũi tên kéo diễn viên
+      const castGrid = document.getElementById('cast-list');
+      const castPrev = document.getElementById('cast-prev');
+      const castNext = document.getElementById('cast-next');
+
+      if (castPrev && castNext && castGrid) {
+        castPrev.onclick = () => {
+          castGrid.scrollBy({ left: -400, behavior: 'smooth' });
+        };
+        castNext.onclick = () => {
+          castGrid.scrollBy({ left: 400, behavior: 'smooth' });
+        };
+      }
+    }
+
+    // Thêm phim vào lịch sử xem
+    function addToHistory(movieId) {
+      if (!movieId) return;
+
+      jwtToken = getStoredToken();
+      if (!jwtToken) return; // Không có token thì không thêm vào lịch sử
+
+      // Gửi request thêm vào lịch sử (không cần chờ response)
+      fetch(apiUrl('/api/auth/history'), {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ movieId: movieId })
+      }).catch(err => {
+        // Silent fail - không hiển thị lỗi cho người dùng
+        console.log('Không thể thêm vào lịch sử:', err);
+      });
+    }
+
+    function initializeReviewControls(movieId) {
+      const reviewSummary = document.getElementById('review-summary');
+      const reviewList = document.getElementById('review-list');
+      const submitButton = document.getElementById('submit-review-btn');
+      const statusText = document.getElementById('review-status');
+      const myReviewBlock = document.getElementById('my-review');
+      const starPicker = document.getElementById('star-picker');
+      const ratingValueLabel = document.getElementById('rating-value-label');
+      const ratingInput = document.getElementById('rating-input');
+      const commentInput = document.getElementById('comment-input');
+      let selectedRating = 0;
+
+      function showStatus(message, color) {
+        if (!statusText) return;
+        statusText.textContent = message;
+        statusText.style.color = color || '#ffd363';
+      }
+
+      function updateStarVisual(rating) {
+        if (!starPicker || !ratingValueLabel || !ratingInput) return;
+        selectedRating = rating;
+        ratingInput.value = String(rating);
+        ratingValueLabel.textContent = `Bạn đã chọn: ${rating.toFixed(1)} / 10`;
+
+        const stars = starPicker.querySelectorAll('.review-star');
+        stars.forEach((star) => {
+          const value = Number(star.getAttribute('data-rating'));
+          star.textContent = value <= rating ? '★' : '☆';
+          star.style.color = value <= rating ? '#ffd363' : '#d4d9e8';
+        });
+      }
+
+      function buildStarPicker() {
+        if (!starPicker) return;
+        starPicker.innerHTML = '';
+        for (let i = 1; i <= 10; i++) {
+          const value = i; // 1..10
+          const star = document.createElement('span');
+          star.className = 'review-star';
+          star.setAttribute('data-rating', String(value));
+          star.style.cursor = 'pointer';
+          star.style.fontSize = '20px';
+          star.style.userSelect = 'none';
+          star.style.lineHeight = '1';
+          star.textContent = '☆';
+          star.addEventListener('click', () => {
+            updateStarVisual(value);
+          });
+          star.addEventListener('mouseenter', () => {
+            updateStarVisual(value);
+          });
+          star.addEventListener('mouseleave', () => {
+            updateStarVisual(selectedRating);
+          });
+          starPicker.appendChild(star);
+        }
+      }
+
+      buildStarPicker();
+      updateStarVisual(0);
+
+      function renderReviews(data) {
+        if (!reviewSummary || !reviewList) return;
+
+        const avg = data.averageRating;
+        const count = data.ratingCount;
+        reviewSummary.textContent = count > 0 ? `Điểm trung bình: ${Number(avg).toFixed(1)} / 10 (${count} lượt)` : 'Chưa có đánh giá nào.';
+
+        if (!data.reviews || data.reviews.length === 0) {
+          reviewList.innerHTML = '<p style="color:var(--muted);">Chưa có bình luận nào.</p>';
+          return;
+        }
+
+        reviewList.innerHTML = data.reviews.map(r => {
+          const showName = r.userName ? r.userName : 'Người dùng';
+          const comment = r.comment && r.comment.trim() !== '' ? r.comment : '<i>Không có bình luận</i>';
+          return `
+            <article style="padding:12px; border:1px solid rgba(255,255,255,0.15); border-radius:10px; margin-bottom:10px; background:rgba(15,20,30,0.8);">
+              <div style="font-weight:700; color:var(--accent);">${showName} · ${Number(r.rating || 0).toFixed(1)} / 10</div>
+              <div style="font-size:0.9rem; color:var(--muted); margin:4px 0 8px;">${r.createdAt ? new Date(r.createdAt).toLocaleString() : ''}</div>
+              <div style="font-size:0.95rem; color:#dde3ee;">${comment}</div>
+            </article>`;
+        }).join('');
+      }
+
+      function loadReviews() {
+        fetch(apiUrl(`/api/movies/${encodeURIComponent(movieId)}/reviews`))
+          .then(res => res.ok ? res.json() : Promise.reject(res))
+          .then(data => {
+            renderReviews(data);
+          })
+          .catch(err => {
+            console.error('Lỗi tải review:', err);
+            if (reviewSummary) reviewSummary.textContent = 'Không thể tải đánh giá.';
+          });
+      }
+
+      function loadMyReview() {
+        jwtToken = getStoredToken();
+        if (!jwtToken) {
+          if (myReviewBlock) myReviewBlock.innerHTML = '<p style="color:var(--muted);">Đăng nhập để đánh giá và bình luận.</p>';
+          return;
+        }
+
+        fetch(apiUrl(`/api/auth/reviews/${encodeURIComponent(movieId)}`), {
+          headers: getAuthHeaders()
+        }).then(res => {
+          if (res.status === 404) {
+            return null;
+          }
+          if (!res.ok) throw new Error('Lỗi load review');
+          return res.json();
+        }).then(data => {
+          if (data && commentInput) {
+            const rawRating = Number(data.rating || 0);
+            const starRating = rawRating > 0 ? Math.max(1, Math.min(10, Math.round(rawRating))) : 0;
+            updateStarVisual(starRating);
+            commentInput.value = data.comment || '';
+          }
+        }).catch(() => {
+          // skip
+        });
+      }
+
+      submitButton.addEventListener('click', () => {
+        jwtToken = getStoredToken();
+        if (!jwtToken) {
+          showStatus('Vui lòng đăng nhập để đánh giá và bình luận.', '#ff6b6b');
+          return;
+        }
+
+        const rating = selectedRating || Number(ratingInput.value);
+        if (isNaN(rating) || rating < 0.5 || rating > 10) {
+          showStatus('Vui lòng chọn số sao (tối thiểu 0.5, tối đa 10).', '#ff6b6b');
+          return;
+        }
+
+        const payload = {
+          movieId: movieId,
+          rating: rating,
+          comment: commentInput.value.trim()
+        };
+
+        fetch(apiUrl('/api/auth/reviews'), {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        }).then(res => {
+          if (!res.ok) return res.json().then(t => Promise.reject(t));
+          return res.json();
+        }).then(() => {
+          showStatus('Lưu đánh giá thành công!', '#6de159');
+          loadReviews();
+        }).catch(err => {
+          console.error('Lỗi gửi review', err);
+          showStatus(err && err.message ? err.message : 'Không thể gửi đánh giá.', '#ff6b6b');
+        });
+      });
+
+      loadReviews();
+      loadMyReview();
+    }
+  </script>
+</body>
+</html>

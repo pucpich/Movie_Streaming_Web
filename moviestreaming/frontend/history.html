@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lịch sử xem phim - Liqi Phim</title>
+  <style>
+    body { margin:0; font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #0b1017; color: #f5f6fa; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .brand { font-size: 1.6rem; font-weight: 800; }
+    .brand span { color: #ffd363; }
+    .btn { border: 0; border-radius: 999px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
+    .btn-link { background: #1a2436; color: #fff; border: 1px solid rgba(255,255,255,0.18); }
+    .view-empty { margin-top: 40px; padding: 24px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); }
+    .movie-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 16px; margin-top: 12px; }
+    .movie-card { background: rgba(20,30,45,0.86); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; overflow: hidden; }
+    .movie-card img { width:100%; object-fit:cover; aspect-ratio: 2/3; }
+    .movie-card .movie-info { padding: 10px; }
+    .movie-title { font-weight: 800; margin-bottom: 6px; }
+    .movie-watched-at { font-size: 0.85rem; color: #b1b9c7; margin-bottom: 8px; }
+    .movie-actions { display: flex; gap: 8px; }
+    .btn-danger { background: #ff4561; color: #fff; border: 1px solid #ff667a; }
+    .toast-wrap { position: fixed; top: 16px; right: 16px; display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
+    .toast { min-width: 240px; padding: 12px 14px; border-radius: 12px; color: #fff; box-shadow: 0 10px 24px rgba(0,0,0,.3); display: flex; justify-content: space-between; align-items: center; }
+    .toast-success { background: linear-gradient(90deg, #1cbf73, #13a7a0); }
+    .toast-error { background: linear-gradient(90deg, #ff4561, #ff8a3c); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand"><span>Liqi</span> Phim - Lịch sử xem phim</div>
+      <a href="index.html" class="btn btn-link">« Về Trang chủ</a>
+    </div>
+
+    <div id="content"></div>
+  </div>
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <script>
+    const API_BASE = window.API_BASE || 'http://localhost:8080';
+    function apiUrl(path){ return API_BASE + path; }
+    let jwtToken = null;
+
+    // Helper: Lấy JWT token từ localStorage
+    function getStoredToken() {
+      return localStorage.getItem('jwt_token');
+    }
+
+    // Helper: Tạo headers với Authorization
+    function getAuthHeaders() {
+      const headers = { 'Content-Type': 'application/json' };
+      if (jwtToken) {
+        headers['Authorization'] = 'Bearer ' + jwtToken;
+      }
+      return headers;
+    }
+    function showToast(type,title,msg){
+      const wrap=document.getElementById('toast-wrap'); if(!wrap)return;
+      const el=document.createElement('div'); el.className='toast '+(type==='success'?'toast-success':'toast-error');
+      el.innerHTML='<div><strong>'+title+'</strong><div style="font-size:0.9em;margin-top:2px;">'+msg+'</div></div><button style="background:transparent;border:none;color:#fff;font-size:16px;cursor:pointer;">×</button>';
+      el.querySelector('button').onclick = ()=>{ el.remove(); };
+      wrap.appendChild(el); setTimeout(()=>el.remove(),3000);
+    }
+
+    function formatWatchedAt(dateString) {
+      try {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) {
+          return 'Hôm nay';
+        } else if (diffDays === 1) {
+          return 'Hôm qua';
+        } else if (diffDays < 7) {
+          return diffDays + ' ngày trước';
+        } else {
+          return date.toLocaleDateString('vi-VN');
+        }
+      } catch (e) {
+        return dateString;
+      }
+    }
+
+    function renderMovieList(movies){
+      const content=document.getElementById('content'); if(!content)return;
+      if(!movies || movies.length===0){
+        content.innerHTML='<div class="view-empty"><h2>Chưa có lịch sử xem phim</h2><p>Bạn chưa xem phim nào. Hãy vào trang chủ và chọn một bộ phim để bắt đầu!</p></div>';
+        return;
+      }
+      const grid=document.createElement('div'); grid.className='movie-grid';
+      movies.forEach(function(m){
+        const card=document.createElement('article'); card.className='movie-card';
+        const img = m.poster_url ? '<img src="'+m.poster_url+'" alt="'+(m.title||'')+'" />' : '<div style="height:240px;display:flex;align-items:center;justify-content:center;background:#1a2436;">🎬</div>';
+        const watchedAt = formatWatchedAt(m.watched_at);
+        card.innerHTML = img + '<div class="movie-info"><h3 class="movie-title">'+(m.title||'Không tên')+'</h3><div class="movie-watched-at">Đã xem: '+watchedAt+'</div><div class="movie-actions"><button class="btn btn-link" onclick="window.location.href=\'movie.html?id='+m.id+'\'">Xem lại</button><button class="btn btn-danger" data-id="'+m.id+'">Xóa</button></div></div>';
+        const btn = card.querySelector('.btn-danger');
+        btn&&btn.addEventListener('click', function(){
+          const mid=this.getAttribute('data-id');
+          fetch(apiUrl('/api/auth/history/'+encodeURIComponent(mid)),{method:'DELETE', headers: getAuthHeaders()}).then(r=>{ if(!r.ok) throw new Error(); return r.json(); }).then(data=>{
+            showToast('success','Đã xoá','Phim đã được xoá khỏi lịch sử.');
+            loadHistory();
+          }).catch(()=>showToast('error','Lỗi','Không thể xoá phim.'));
+        });
+        grid.appendChild(card);
+      });
+      content.innerHTML=''; content.appendChild(grid);
+    }
+
+    function loadHistory(){
+      // Kiểm tra token trước
+      jwtToken = getStoredToken();
+      if (!jwtToken) {
+        document.getElementById('content').innerHTML='<div class="view-empty"><h2>Vui lòng đăng nhập</h2><p>Đăng nhập để xem lịch sử xem phim.</p></div>';
+        return;
+      }
+
+      fetch(apiUrl('/api/auth/me'), { headers: getAuthHeaders() }).then(r=>{ if(!r.ok) throw new Error(); return r.json(); }).then(user=>{
+        if(!user || !user.id){ document.getElementById('content').innerHTML='<div class="view-empty"><h2>Vui lòng đăng nhập</h2><p>Đăng nhập để xem lịch sử xem phim.</p></div>'; return; }
+        fetch(apiUrl('/api/auth/history'), { headers: getAuthHeaders() }).then(r=>{ if(!r.ok) throw new Error(); return r.json(); }).then(renderMovieList).catch(()=>{ document.getElementById('content').innerHTML='<div class="view-empty"><h2>Lỗi</h2><p>Không thể tải lịch sử xem phim.</p></div>'; });
+      }).catch(()=>{ document.getElementById('content').innerHTML='<div class="view-empty"><h2>Vui lòng đăng nhập</h2><p>Đăng nhập để xem lịch sử xem phim.</p></div>'; });
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>

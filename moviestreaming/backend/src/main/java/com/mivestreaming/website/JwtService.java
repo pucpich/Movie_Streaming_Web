@@ -9,14 +9,6 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-/**
- * Service xử lý JWT:
- *   - Tạo token khi đăng nhập thành công
- *   - Xác thực và đọc thông tin từ token
- *
- * Token chứa: userId, email, role
- * Thuật toán ký: HMAC-SHA256 (HS256)
- */
 @Component
 public class JwtService {
 
@@ -26,15 +18,12 @@ public class JwtService {
     @Value("${jwt.expiration-ms}")
     private long expirationMs;
 
-    // ---------- Key Helper ----------
-
     /** Tạo SecretKey từ chuỗi secret trong config */
     private SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // ---------- Generate ----------
 
     /**
      * Tạo JWT token cho user sau khi đăng nhập thành công.
@@ -58,7 +47,6 @@ public class JwtService {
                 .compact();
     }
 
-    // ---------- Validate ----------
 
     /**
      * Xác thực token có hợp lệ không (chữ ký đúng & chưa hết hạn).
@@ -78,8 +66,6 @@ public class JwtService {
             return false;
         }
     }
-
-    // ---------- Extract Claims ----------
 
     /** Lấy tất cả claims từ token */
     private Claims extractAllClaims(String token) {
